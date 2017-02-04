@@ -5,7 +5,7 @@ var React = require('react');
 
 module.exports = function render() {
     return (
-        <nav className="pt-navbar .modifier">
+        <nav className="pt-navbar pt-dark .modifier">
             <div className="pt-navbar-group pt-align-left">
                 <div className="pt-navbar-heading">ElasticBrain</div>
             </div>
