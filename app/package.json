@@ -6,7 +6,9 @@
     "react-scripts": "0.8.5"
   },
   "dependencies": {
+    "@blueprintjs/core": "^1.8.0",
     "react": "^15.4.2",
+    "react-addons-css-transition-group": "^15.4.2",
     "react-dom": "^15.4.2"
   },
   "scripts": {
