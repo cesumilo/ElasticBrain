@@ -1,7 +1,8 @@
-var React = require('react');
+import React, { Component } from 'react';
 
-var NavBar = React.createClass({
-    render: function() {
+export class NavBar extends Component {
+
+    render() {
         return (
             <nav className="pt-navbar pt-dark .modifier">
                 <div className="pt-navbar-group pt-align-left">
@@ -16,6 +17,4 @@ var NavBar = React.createClass({
             </nav>
         );
     }
-});
-
-module.exports = NavBar;
+}

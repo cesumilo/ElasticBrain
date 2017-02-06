@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import { NavBar } from './components/NavBar.js';
+import { VScriptingGUI } from './components/VScriptingGUI.js';
+
 import '../node_modules/normalize.css/normalize.css';
 import '../node_modules/@blueprintjs/core/dist/blueprint.css';
 
-var NavBar = require('./components/NavBar');
-var VScriptingGUI = require('./components/VScriptingGUI');
+//var VScriptingGUI = require('./components/VScriptingGUI');
 
 class App extends Component {
   render() {
