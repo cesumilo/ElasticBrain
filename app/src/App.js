@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { NavBar } from './components/NavBar.js';
-import { VScriptingGUI } from './components/VScriptingGUI.js';
+import { UIVisualScripting } from './components/UI/UIVisualScripting.js';
 
 import '../node_modules/normalize.css/normalize.css';
 import '../node_modules/@blueprintjs/core/dist/blueprint.css';
@@ -12,7 +12,7 @@ class App extends Component {
       return (
           <div id="app">
               <NavBar/>
-              <VScriptingGUI/>
+              <UIVisualScripting/>
           </div>
       );
   }

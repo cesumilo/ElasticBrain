@@ -20,6 +20,7 @@ module.exports = {
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#8C0E00';
+        ctx.closePath();
         ctx.stroke();
     },
 
@@ -29,6 +30,7 @@ module.exports = {
         ctx.lineTo(x2, y2);
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#8C0E00';
+        ctx.closePath();
         ctx.stroke();
     },
 
@@ -38,6 +40,33 @@ module.exports = {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
+        ctx.closePath();
         ctx.stroke();
+    },
+
+    drawRoundedRect: function(ctx, x, y, width, height, radius, fill, stroke) {
+        if (typeof stroke === "undefined" ) {
+            stroke = true;
+        }
+        if (typeof radius === "undefined") {
+            radius = 5;
+        }
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        if (stroke) {
+            ctx.stroke();
+        }
+        if (fill) {
+            ctx.fill();
+        }
     }
 };

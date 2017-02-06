@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { BlockLink } from '../UI/BlockLink';
-import { ContextMenu, Menu, MenuDivider, MenuItem } from "@blueprintjs/core";
-import '../../public/css/VScriptingGUI.css';
+import { BlockLink } from './UIBlockLink';
+import { ContextMenu } from "@blueprintjs/core";
+import { UIContextMenu } from './UIContextMenu';
+import { UIBlock } from './UIBlock';
 
-export class VScriptingGUI extends React.Component {
+import '../../../public/css/VScriptingGUI.css';
+
+export class UIVisualScripting extends Component {
 
     constructor() {
         super();
@@ -16,6 +19,7 @@ export class VScriptingGUI extends React.Component {
             circleRadius: 10,
             mouseClickHandlers: [],
             mouseMoveHandlers: [],
+            shouldUpdateHandlers: [],
             mouseNbClicks: 0,
             guiObjects: [],
             isContextMenuOpen: false
@@ -31,35 +35,59 @@ export class VScriptingGUI extends React.Component {
             this.state.canvas.addEventListener("mousedown", (e) => this.mouseClickHandler(e));
             this.state.canvas.addEventListener("mousemove", (e) => this.mouseMoveHandler(e));
 
+            // TEST
+            var block1 = new UIBlock();
+            this.addDrawableObject(block1);
+            block1.setCanvas(this.state.canvas);
+            block1.setSize(100, 100);
+            this.addEventListener("mouseClick", (e, nbClicks) => block1.mouseClickHandler(e, nbClicks));
+            this.addEventListener("mouseMove", (e) => block1.update(e));
+
+            var block2 = new UIBlock();
+            this.addDrawableObject(block2);
+            block2.setCanvas(this.state.canvas);
+            block2.setSize(100, 100);
+            this.addEventListener("mouseClick", (e, nbClicks) => block2.mouseClickHandler(e, nbClicks));
+            this.addEventListener("mouseMove", (e) => block2.update(e));
+            //FIN TEST
+
             this.setState({
                 ctx: this.state.canvas.getContext('2d')
+            }, function() {
+                this.forceUpdate();
             });
         });
     }
 
     componentWillUpdate() {
         if (this.state.ctx) {
+            this.state.ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
             for (var i = 0; i < this.state.guiObjects.length; i++) {
-                this.state.ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
                 this.state.guiObjects[i].draw();
             }
         }
     }
 
     addDrawableObject(object) {
-        this.state.guiObjects.push(object);
+        if (typeof object.draw === "function") {
+            this.state.guiObjects.push(object);
+        }
     }
 
     mouseClickHandler(e) {
+        var state = false;
+        var i = 0;
+
         this.setState({
             mouseNbClicks: this.state.mouseNbClicks + 1
         });
 
-        for (var i = 0; i < this.state.mouseClickHandlers.length; i++) {
-            this.state.mouseClickHandlers[i](e, this.state.mouseNbClicks);
+        while (i < this.state.mouseClickHandlers.length && !state) {
+            state |= this.state.mouseClickHandlers[i](e, this.state.mouseNbClicks);
+            i++;
         }
 
-        if (this.state.mouseNbClicks > 1) {
+        if (!state || this.state.mouseNbClicks > 1) {
             this.setState({
                 mouseNbClicks: 0
             });
@@ -68,7 +96,9 @@ export class VScriptingGUI extends React.Component {
 
     mouseMoveHandler(e) {
         for (var i = 0; i < this.state.mouseMoveHandlers.length; i++) {
-            this.state.mouseClickHandlers[i](e);
+            if (this.state.mouseMoveHandlers[i](e)) {
+                this.forceUpdate();
+            }
         }
     }
 
@@ -80,20 +110,15 @@ export class VScriptingGUI extends React.Component {
             case "mouseMove":
                 this.state.mouseMoveHandlers.push(callback);
                 break;
+            default:
+                break;
         }
     }
 
     showContextMenu(e) {
         // must prevent default to cancel parent's context menu
         e.preventDefault();
-        // invoke static API, getting coordinates from mouse event
-        ContextMenu.show(
-            <Menu>
-                <MenuItem iconName="add-to-artifact" text="New..." />
-            </Menu>,
-            { left: e.clientX, top: e.clientY },
-            () => this.onContextMenuClose());
-        // indicate that context menu is open so we can add a CSS class to this element
+        ContextMenu.show(<UIContextMenu/>, { left: e.clientX, top: e.clientY }, () => this.onContextMenuClose());
         this.setState({ isContextMenuOpen: true });
     }
 
@@ -104,7 +129,7 @@ export class VScriptingGUI extends React.Component {
     render() {
         const classes = classNames("context-menu-node", { "context-menu-open": this.state.isContextMenuOpen });
         return (
-            <div className={classes} onContextMenu={this.showContextMenu}>
+            <div className={classes} onContextMenu={(e) => this.showContextMenu(e)}>
                 <canvas id="vscripting-gui"></canvas>
             </div>
         );

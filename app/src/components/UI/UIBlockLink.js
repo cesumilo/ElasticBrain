@@ -1,6 +1,6 @@
 var UIGraphics = require('./UIGraphics');
 
-export class BlockLink {
+export class UIBlockLink {
 
     constructor() {
         this._objFrom = null;
