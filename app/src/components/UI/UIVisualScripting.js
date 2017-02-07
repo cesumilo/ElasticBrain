@@ -15,8 +15,6 @@ export class UIVisualScripting extends Component {
             canvas: null,
             ctx: null,
             pts: [],
-            circleOffset: 50,
-            circleRadius: 10,
             mouseClickHandlers: [],
             mouseMoveHandlers: [],
             shouldUpdateHandlers: [],
@@ -36,19 +34,22 @@ export class UIVisualScripting extends Component {
             this.state.canvas.addEventListener("mousemove", (e) => this.mouseMoveHandler(e));
 
             // TEST
-            var block1 = new UIBlock();
+            var block1 = new UIBlock("f:kzjerhflkzjehrlkfhzerkfhgzejkrghkzlerhgkzej", {
+                inputs: [{ name: "test1", src: null }, { name: "test2", src: null }, { name: "test3", src: null }, { name: "test4", src: null }],
+                outputs: [{ name: "test5", dest: null }, { name: "test6", dest: null }, { name: "test7", dest: null }]
+            });
             this.addDrawableObject(block1);
             block1.setCanvas(this.state.canvas);
-            block1.setSize(100, 100);
+            block1.generateMagnets();
             this.addEventListener("mouseClick", (e, nbClicks) => block1.mouseClickHandler(e, nbClicks));
             this.addEventListener("mouseMove", (e) => block1.update(e));
 
-            var block2 = new UIBlock();
+            /*var block2 = new UIBlock();
             this.addDrawableObject(block2);
             block2.setCanvas(this.state.canvas);
-            block2.setSize(100, 100);
+            block2.generateMagnets();
             this.addEventListener("mouseClick", (e, nbClicks) => block2.mouseClickHandler(e, nbClicks));
-            this.addEventListener("mouseMove", (e) => block2.update(e));
+            this.addEventListener("mouseMove", (e) => block2.update(e));*/
             //FIN TEST
 
             this.setState({

@@ -1,4 +1,5 @@
 var UIGraphics = require('./UIGraphics');
+var UIStyles = require('./UIStyles');
 
 export class UIBlockLink {
 
@@ -8,8 +9,8 @@ export class UIBlockLink {
         this._from = { x: 0, y: 0 };
         this._to = { x: 0, y: 0 };
         this._curvesPoints = [ { x: 0, y: 0 }, { x: 0, y: 0 } ];
-        this._curvesOffset = 50;
-        this._circleRadius = 10;
+        this._curvesOffset = UIStyles.UIBlockLinkDefaultCurveOffset;
+        this._circleRadius = UIStyles.UIBlockLinkDefaultCircleRadius;
         this._ctx = null;
         this._canvas = null;
         this._trackCurvePointOne = false;
@@ -111,14 +112,23 @@ export class UIBlockLink {
     }
 
     draw() {
+        this._ctx.fillStyle = UIStyles.UIBlockLinkCircleFillColor;
+        this._ctx.strokeStyle = UIStyles.UIBlockLinkCircleStrokeColor;
         UIGraphics.drawCircle(this._ctx, this._from.x, this._from.y, this._circleRadius);
         UIGraphics.drawCircle(this._ctx, this._curvesPoints[0].x, this._curvesPoints[0].y, this._circleRadius);
+
+        this._ctx.strokeStyle = UIStyles.UIBlockLinkLineStrokeColor;
         UIGraphics.drawLine(this._ctx, this._from.x, this._from.y, this._curvesPoints[0].x, this._curvesPoints[0].y);
 
+        this._ctx.fillStyle = UIStyles.UIBlockLinkCircleFillColor;
+        this._ctx.strokeStyle = UIStyles.UIBlockLinkCircleStrokeColor;
         UIGraphics.drawCircle(this._ctx, this._to.x, this._to.y, this._circleRadius);
         UIGraphics.drawCircle(this._ctx, this._curvesPoints[1].x, this._curvesPoints[1].y, this._circleRadius);
+
+        this._ctx.strokeStyle = UIStyles.UIBlockLinkLineStrokeColor;
         UIGraphics.drawLine(this._ctx, this._to.x, this._to.y, this._curvesPoints[1].x, this._curvesPoints[1].y);
 
+        this._ctx.strokeStyle = UIStyles.UIBlockLinkBezierCurveStrokeColor;
         UIGraphics.drawBezierCurve(this._ctx,
             this._from.x, this._from.y,
             this._curvesPoints[0].x, this._curvesPoints[0].y,

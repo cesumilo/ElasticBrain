@@ -2,7 +2,39 @@
  * Created by Cesumilo on 05/02/2017.
  */
 
+import $ from 'jquery';
+
 module.exports = {
+
+    getTextHeight: function(str, font) {
+
+        var text = $('<span>' + str + '</span>').css({ fontFamily: font });
+        var block = $('<div style="display: inline-block; width: 1px; height: 0px;"></div>');
+
+        var div = $('<div></div>');
+        div.append(text, block);
+
+        var body = $('body');
+        body.append(div);
+
+        try {
+
+            var result = {};
+
+            block.css({ verticalAlign: 'baseline' });
+            result.ascent = block.offset().top - text.offset().top;
+
+            block.css({ verticalAlign: 'bottom' });
+            result.height = block.offset().top - text.offset().top;
+
+            result.descent = result.height - result.ascent;
+
+        } finally {
+            div.remove();
+        }
+
+        return result;
+    },
 
     getCanvasCoordinates: function(canvas, x, y) {
         var rect = canvas.getBoundingClientRect();
@@ -16,10 +48,8 @@ module.exports = {
     drawCircle: function(ctx, centerX, centerY, radius) {
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = "rgba(255, 95, 76, " + 0.5 + ")";
         ctx.fill();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = '#8C0E00';
         ctx.closePath();
         ctx.stroke();
     },
@@ -29,14 +59,12 @@ module.exports = {
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.lineWidth = 1;
-        ctx.strokeStyle = '#8C0E00';
         ctx.closePath();
         ctx.stroke();
     },
 
     drawBezierCurve: function(ctx, x1, y1, x2, y2, x3, y3, x4, y4) {
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "#333";
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
