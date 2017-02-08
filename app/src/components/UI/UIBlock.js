@@ -113,20 +113,23 @@ export class UIBlock {
         this._height = height;
     }
 
-    mouseClickHandler(e, nbClick) {
+    mouseBeginClickAndDropHandler(e) {
         var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
-        this._trackMouse = (nbClick < 2 && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
-        && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height);
+        this._trackMouse = (pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
+            && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height);
         return this._trackMouse;
     }
 
-    update(e) {
-        var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+    mouseEndClickAndDropHandler(e) {
+        this._trackMouse = false;
+    }
+
+    update(delta) {
         if (this._trackMouse) {
             for (var m = 0; m < this._moveBlockHandlers.length; m++) {
-                this._moveBlockHandlers[m]({ x: pos.x - this._pos.x, y: pos.y - this._pos.y });
+                this._moveBlockHandlers[m](delta);
             }
-            this._pos = pos;
+            this._pos = { x: this._pos.x + delta.x, y: this._pos.y + delta.y };
             return true;
         }
         return false;

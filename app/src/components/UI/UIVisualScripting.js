@@ -13,6 +13,8 @@ import { UIBlock } from './UIBlock';
 
 import '../../../public/css/VScriptingGUI.css';
 
+var UIGraphics = require('./UIGraphics');
+
 export class UIVisualScripting extends Component {
 
     constructor() {
@@ -20,11 +22,16 @@ export class UIVisualScripting extends Component {
         this.state = {
             canvas: null,
             ctx: null,
-            pts: [],
+
+            oldMousePosition: { x: 0, y: 0 },
             mouseClickHandlers: [],
             mouseMoveHandlers: [],
+            mouseBeginClickAndDropHandlers: [],
+            mouseEndClickAndDropHandlers: [],
             shouldUpdateHandlers: [],
-            mouseNbClicks: 0,
+            willClickDrop: false,
+            isClickDrop: false,
+
             guiObjects: [],
             isContextMenuOpen: false
         };
@@ -36,26 +43,21 @@ export class UIVisualScripting extends Component {
         }, function() {
             this.state.canvas.setAttribute("width", document.body.clientWidth);
             this.state.canvas.setAttribute("height", document.body.clientHeight * 0.938);
-            this.state.canvas.addEventListener("mousedown", (e) => this.mouseClickHandler(e));
+            this.state.canvas.addEventListener("mousedown", (e) => this.mouseDownHandler(e));
             this.state.canvas.addEventListener("mousemove", (e) => this.mouseMoveHandler(e));
+            this.state.canvas.addEventListener("mouseup", (e) => this.mouseUpHandler(e));
 
             // TEST
-            var block1 = new UIBlock("Toto", {
-                inputs: [/*{ name: "test1", src: null }, { name: "test2", src: null },*/ { name: "elfihzerliufhzelriuhfgzleiruh", src: null }, { name: "test4", src: null }],
+            var block1 = new UIBlock("ferlkfhzelkrhfzlekrjhglzkhglz", {
+                inputs: [{ name: "test1", src: null }, { name: "test2", src: null }, { name: "test3", src: null }, { name: "test4", src: null }],
                 outputs: [{ name: "test5", dest: null }, { name: "test6", dest: null }, { name: "test7", dest: null }]
             });
             this.addDrawableObject(block1);
             block1.setCanvas(this.state.canvas);
             block1.generateMagnets();
-            this.addEventListener("mouseClick", (e, nbClicks) => block1.mouseClickHandler(e, nbClicks));
+            this.addEventListener("mouseBeginClickAndDrop", (e) => block1.mouseBeginClickAndDropHandler(e));
+            this.addEventListener("mouseEndClickAndDrop", (e) => block1.mouseEndClickAndDropHandler(e));
             this.addEventListener("mouseMove", (e) => block1.update(e));
-
-            /*var block2 = new UIBlock();
-            this.addDrawableObject(block2);
-            block2.setCanvas(this.state.canvas);
-            block2.generateMagnets();
-            this.addEventListener("mouseClick", (e, nbClicks) => block2.mouseClickHandler(e, nbClicks));
-            this.addEventListener("mouseMove", (e) => block2.update(e));*/
             //FIN TEST
 
             this.setState({
@@ -81,32 +83,57 @@ export class UIVisualScripting extends Component {
         }
     }
 
-    mouseClickHandler(e) {
-        var state = false;
-        var i = 0;
+    mouseDownHandler(e) {
+        this.setState({
+            willClickDrop: true
+        });
+    }
+
+    mouseUpHandler(e) {
+        if (!this.state.isClickDrop) {
+            for (var i = 0; i < this.state.mouseClickHandlers.length; i++) {
+                if (this.state.mouseClickHandlers[i](e)) {
+                    this.forceUpdate();
+                }
+            }
+        } else {
+            for (var j = 0; j < this.state.mouseEndClickAndDropHandlers.length; j++) {
+                this.state.mouseEndClickAndDropHandlers[j](e);
+            }
+        }
 
         this.setState({
-            mouseNbClicks: this.state.mouseNbClicks + 1
+            willClickDrop: false,
+            isClickDrop: false
         });
-
-        while (i < this.state.mouseClickHandlers.length && !state) {
-            state |= this.state.mouseClickHandlers[i](e, this.state.mouseNbClicks);
-            i++;
-        }
-
-        if (!state || this.state.mouseNbClicks > 1) {
-            this.setState({
-                mouseNbClicks: 0
-            });
-        }
     }
 
     mouseMoveHandler(e) {
-        for (var i = 0; i < this.state.mouseMoveHandlers.length; i++) {
-            if (this.state.mouseMoveHandlers[i](e)) {
-                this.forceUpdate();
+        if (this.state.willClickDrop && !this.state.isClickDrop) {
+            this.setState({
+                isClickDrop: true
+            }, function() {
+                for (var j = 0; j < this.state.mouseBeginClickAndDropHandlers.length; j++) {
+                    this.state.mouseBeginClickAndDropHandlers[j](e);
+                }
+            });
+        }
+
+        if (this.state.isClickDrop) {
+            var pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);
+            for (var i = 0; i < this.state.mouseMoveHandlers.length; i++) {
+                if (this.state.mouseMoveHandlers[i]({
+                    x: pos.x - this.state.oldMousePosition.x,
+                    y: pos.y - this.state.oldMousePosition.y
+                })) {
+                    this.forceUpdate();
+                }
             }
         }
+
+        this.setState({
+            oldMousePosition: UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY)
+        });
     }
 
     addEventListener(name, callback) {
@@ -116,6 +143,12 @@ export class UIVisualScripting extends Component {
                 break;
             case "mouseMove":
                 this.state.mouseMoveHandlers.push(callback);
+                break;
+            case "mouseBeginClickAndDrop":
+                this.state.mouseBeginClickAndDropHandlers.push(callback);
+                break;
+            case "mouseEndClickAndDrop":
+                this.state.mouseEndClickAndDropHandlers.push(callback);
                 break;
             default:
                 break;
