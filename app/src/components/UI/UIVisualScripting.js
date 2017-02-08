@@ -40,8 +40,8 @@ export class UIVisualScripting extends Component {
             this.state.canvas.addEventListener("mousemove", (e) => this.mouseMoveHandler(e));
 
             // TEST
-            var block1 = new UIBlock("f:kzjerhflkzjehrlkfhzerkfhgzejkrghkzlerhgkzej", {
-                inputs: [{ name: "test1", src: null }, { name: "test2", src: null }, { name: "test3", src: null }, { name: "test4", src: null }],
+            var block1 = new UIBlock("Toto", {
+                inputs: [/*{ name: "test1", src: null }, { name: "test2", src: null },*/ { name: "elfihzerliufhzelriuhfgzleiruh", src: null }, { name: "test4", src: null }],
                 outputs: [{ name: "test5", dest: null }, { name: "test6", dest: null }, { name: "test7", dest: null }]
             });
             this.addDrawableObject(block1);
