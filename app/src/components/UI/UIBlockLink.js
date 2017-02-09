@@ -22,7 +22,7 @@ export class UIBlockLink {
         this._trackCurvePointOne = false;
         this._trackCurvePointTwo = false;
         this._trackFrom = false;
-        this._trackTo = false;
+        this._trackTo = true;
     }
 
     setContext(ctx) {
@@ -32,6 +32,10 @@ export class UIBlockLink {
     setCanvas(canvas) {
         this._canvas = canvas;
         this._ctx = canvas.getContext('2d');
+    }
+
+    isLinking() {
+        return this._trackTo;
     }
 
     getObjectAttachFrom() {
@@ -58,33 +62,37 @@ export class UIBlockLink {
         this._objTo = obj;
     }
 
-    updateFrom(x, y) {
-        this._from = { x: x, y: y };
+    eventUpdateFrom(delta) {
+        this._from = {
+            x: this._from.x + delta.x,
+            y: this._from.y + delta.y
+        };
     }
 
-    updateTo(x, y) {
-        this._to = { x: x, y: y };
+    eventUpdateTo(delta) {
+        this._to = {
+            x: this._to.x + delta.x,
+            y: this._to.y + delta.y
+        };
     }
 
-    eventUpdateFrom(e) {
-        this._from = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+    eventUpdateCurvePointOne(delta) {
+        this._curvesPoints[0] = {
+            x: this._curvesPoints[0].x + delta.x,
+            y: this._curvesPoints[0].y + delta.y
+        };
     }
 
-    eventUpdateTo(e) {
-        this._to = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+    eventUpdateCurvePointTwo(delta) {
+        this._curvesPoints[1] = {
+            x: this._curvesPoints[1].x + delta.x,
+            y: this._curvesPoints[1].y + delta.y
+        };
     }
 
-    eventUpdateCurvePointOne(e) {
-        this._curvesPoints[0] = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
-    }
-
-    eventUpdateCurvePointTwo(e) {
-        this._curvesPoints[1] = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
-    }
-
-    mouseClickHandler(e, nbClicks) {
+    mouseClickHandler(e) {
         var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
-
+        /*
         if (nbClicks < 1) {
             if (UIGraphics.euclidianDist(pos.x, this._curvesPoints[0].x, pos.y, this._curvesPoints[0].y) < this._circleRadius) {
                 this._trackCurvePointOne = true;
@@ -96,24 +104,24 @@ export class UIBlockLink {
             this._trackCurvePointTwo = false;
             this._trackFrom = false;
             this._trackTo = false;
-        }
+        }*/
     }
 
-    mouseMoveHandler(e) {
+    mouseMoveHandler(delta) {
         if (this._trackTo) {
-            this.eventUpdateTo(e);
+            this.eventUpdateTo(delta);
         }
 
         if (this._trackFrom) {
-            this.eventUpdateFrom(e);
+            this.eventUpdateFrom(delta);
         }
 
         if (this._trackCurvePointOne) {
-            this.eventUpdateCurvePointOne(e);
+            this.eventUpdateCurvePointOne(delta);
         }
 
         if (this._trackCurvePointTwo) {
-            this.eventUpdateCurvePointTwo(e);
+            this.eventUpdateCurvePointTwo(delta);
         }
     }
 

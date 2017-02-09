@@ -28,7 +28,7 @@ export class UIBlock {
         if (options.hasOwnProperty("inputs")) {
             for (var i = 0; i < options['inputs'].length; i++) {
                 !function(ref, length) {
-                    var input = new UIBlockMagnet(options['inputs'][i].name, true);
+                    var input = new UIBlockMagnet(ref, options['inputs'][i].name, true);
                     ref._drawables.push(input);
                     ref._inputs.push({ index: length, obj: ref._drawables[length - 1] });
                     ref._drawables[length - 1].setPosition(ref._pos.x - UIStyles.UIBlockMagnetDefaultWidth - 1,
@@ -42,7 +42,7 @@ export class UIBlock {
         if (options.hasOwnProperty("outputs")) {
             for (var j = 0; j < options['outputs'].length; j++) {
                 !function (ref, length) {
-                    var output = new UIBlockMagnet(options['outputs'][j].name);
+                    var output = new UIBlockMagnet(ref, options['outputs'][j].name);
                     ref._drawables.push(output);
                     ref._outputs.push({ index: length, obj: output });
                     ref._drawables[length - 1].setPosition(ref._pos.x + ref._width + 1,

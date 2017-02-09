@@ -10,7 +10,6 @@ import { BlockLink } from './UIBlockLink';
 import { ContextMenu } from "@blueprintjs/core";
 import { UIContextMenu } from './UIContextMenu';
 import { UIBlock } from './UIBlock';
-
 import '../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
@@ -48,9 +47,9 @@ export class UIVisualScripting extends Component {
             this.state.canvas.addEventListener("mouseup", (e) => this.mouseUpHandler(e));
 
             // TEST
-            var block1 = new UIBlock("ferlkfhzelkrhfzlekrjhglzkhglz", {
-                inputs: [{ name: "test1", src: null }, { name: "test2", src: null }, { name: "test3", src: null }, { name: "test4", src: null }],
-                outputs: [{ name: "test5", dest: null }, { name: "test6", dest: null }, { name: "test7", dest: null }]
+            var block1 = new UIBlock("block1", {
+                inputs: [{ name: "a", src: null }],
+                outputs: [{ name: "b", dest: null }]
             });
             this.addDrawableObject(block1);
             block1.setCanvas(this.state.canvas);
@@ -58,6 +57,17 @@ export class UIVisualScripting extends Component {
             this.addEventListener("mouseBeginClickAndDrop", (e) => block1.mouseBeginClickAndDropHandler(e));
             this.addEventListener("mouseEndClickAndDrop", (e) => block1.mouseEndClickAndDropHandler(e));
             this.addEventListener("mouseMove", (e) => block1.update(e));
+
+            var block2 = new UIBlock("block2", {
+                inputs: [{ name: "c", src: null }],
+                outputs: [{ name: "d", dest: null }]
+            });
+            this.addDrawableObject(block2);
+            block2.setCanvas(this.state.canvas);
+            block2.generateMagnets();
+            this.addEventListener("mouseBeginClickAndDrop", (e) => block2.mouseBeginClickAndDropHandler(e));
+            this.addEventListener("mouseEndClickAndDrop", (e) => block2.mouseEndClickAndDropHandler(e));
+            this.addEventListener("mouseMove", (e) => block2.update(e));
             //FIN TEST
 
             this.setState({
@@ -94,11 +104,13 @@ export class UIVisualScripting extends Component {
             for (var i = 0; i < this.state.mouseClickHandlers.length; i++) {
                 if (this.state.mouseClickHandlers[i](e)) {
                     this.forceUpdate();
+                    break;
                 }
             }
         } else {
             for (var j = 0; j < this.state.mouseEndClickAndDropHandlers.length; j++) {
-                this.state.mouseEndClickAndDropHandlers[j](e);
+                if (this.state.mouseEndClickAndDropHandlers[j](e))
+                    break;
             }
         }
 
@@ -114,7 +126,8 @@ export class UIVisualScripting extends Component {
                 isClickDrop: true
             }, function() {
                 for (var j = 0; j < this.state.mouseBeginClickAndDropHandlers.length; j++) {
-                    this.state.mouseBeginClickAndDropHandlers[j](e);
+                    if (this.state.mouseBeginClickAndDropHandlers[j](e))
+                        break;
                 }
             });
         }
@@ -127,6 +140,7 @@ export class UIVisualScripting extends Component {
                     y: pos.y - this.state.oldMousePosition.y
                 })) {
                     this.forceUpdate();
+                    break;
                 }
             }
         }
