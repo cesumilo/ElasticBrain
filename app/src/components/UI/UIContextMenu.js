@@ -11,7 +11,7 @@ export class UIContextMenu extends Component {
     render() {
         return (
             <Menu>
-                <MenuItem onClick={this.props.onClick} iconName="add-to-artifact" text="New..." />
+                <MenuItem onClick={this.props.onClick} iconName="new-object" text="New..." />
             </Menu>
         );
     }
