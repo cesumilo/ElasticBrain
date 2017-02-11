@@ -13,6 +13,7 @@ export class UIBlockLink {
     constructor() {
         this._objFrom = null;
         this._objTo = null;
+        this._id = 0;
         this._from = { x: 0, y: 0 };
         this._to = { x: 0, y: 0 };
         this._curvesPoints = [ { x: 0, y: 0 }, { x: 0, y: 0 } ];
@@ -23,6 +24,7 @@ export class UIBlockLink {
         this._trackCurvePointOne = false;
         this._trackCurvePointTwo = false;
         this._trackMouse = false;
+        this._showEditCurve = true;
 
         this._mouseMoveId = UIEvents.addEventListener("mouseMove", (delta) => this.mouseMoveHandler(delta));
         this._mouseClickId = UIEvents.addEventListener("mouseClick", (e) => this.mouseClickHandler(e));
@@ -31,13 +33,37 @@ export class UIBlockLink {
         this._mouseFollowId = UIEvents.addEventListener("mouseFollow", (delta) => this.mouseMoveHandler(delta));
     }
 
+    setId(id) {
+        this._id = id;
+    }
+
+    getId() {
+        return this._id;
+    }
+
     setContext(ctx) {
         this._ctx = ctx;
+    }
+
+    toggleEditMode() {
+        this._showEditCurve = !this._showEditCurve;
+    }
+
+    isInEditMode() {
+        return this._showEditCurve;
     }
 
     setCanvas(canvas) {
         this._canvas = canvas;
         this._ctx = canvas.getContext('2d');
+    }
+
+    getObjectFrom() {
+        this._objFrom;
+    }
+
+    getObjectTo() {
+        this._objTo;
     }
 
     attachFrom(x, y, obj) {
@@ -48,6 +74,7 @@ export class UIBlockLink {
         this._curvesPoints[1].y = y + this._curvesOffset;
         this._objFrom = obj;
         this._trackMouse = true;
+        this._showEditCurve = true;
     }
 
     attachTo(x, y, obj) {
@@ -59,6 +86,7 @@ export class UIBlockLink {
             this._objTo = obj;
             UIEvents.removeEventListener("mouseFollow", this._mouseFollowId);
             this._trackMouse = false;
+            this._showEditCurve = false;
         }
     }
 
@@ -128,21 +156,20 @@ export class UIBlockLink {
     }
 
     draw() {
-        this._ctx.fillStyle = UIStyles.UIBlockLinkCircleFillColor;
-        this._ctx.strokeStyle = UIStyles.UIBlockLinkCircleStrokeColor;
-        UIGraphics.drawCircle(this._ctx, this._from.x, this._from.y, this._circleRadius);
-        UIGraphics.drawCircle(this._ctx, this._curvesPoints[0].x, this._curvesPoints[0].y, this._circleRadius);
-
-        this._ctx.strokeStyle = UIStyles.UIBlockLinkLineStrokeColor;
-        UIGraphics.drawLine(this._ctx, this._from.x, this._from.y, this._curvesPoints[0].x, this._curvesPoints[0].y);
-
-        this._ctx.fillStyle = UIStyles.UIBlockLinkCircleFillColor;
-        this._ctx.strokeStyle = UIStyles.UIBlockLinkCircleStrokeColor;
-        UIGraphics.drawCircle(this._ctx, this._to.x, this._to.y, this._circleRadius);
-        UIGraphics.drawCircle(this._ctx, this._curvesPoints[1].x, this._curvesPoints[1].y, this._circleRadius);
-
-        this._ctx.strokeStyle = UIStyles.UIBlockLinkLineStrokeColor;
-        UIGraphics.drawLine(this._ctx, this._to.x, this._to.y, this._curvesPoints[1].x, this._curvesPoints[1].y);
+        if (this._showEditCurve) {
+            this._ctx.fillStyle = UIStyles.UIBlockLinkCircleFillColor;
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkCircleStrokeColor;
+            UIGraphics.drawCircle(this._ctx, this._from.x, this._from.y, this._circleRadius);
+            UIGraphics.drawCircle(this._ctx, this._curvesPoints[0].x, this._curvesPoints[0].y, this._circleRadius);
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkLineStrokeColor;
+            UIGraphics.drawLine(this._ctx, this._from.x, this._from.y, this._curvesPoints[0].x, this._curvesPoints[0].y);
+            this._ctx.fillStyle = UIStyles.UIBlockLinkCircleFillColor;
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkCircleStrokeColor;
+            UIGraphics.drawCircle(this._ctx, this._to.x, this._to.y, this._circleRadius);
+            UIGraphics.drawCircle(this._ctx, this._curvesPoints[1].x, this._curvesPoints[1].y, this._circleRadius);
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkLineStrokeColor;
+            UIGraphics.drawLine(this._ctx, this._to.x, this._to.y, this._curvesPoints[1].x, this._curvesPoints[1].y);
+        }
 
         this._ctx.strokeStyle = UIStyles.UIBlockLinkBezierCurveStrokeColor;
         UIGraphics.drawBezierCurve(this._ctx,

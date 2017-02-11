@@ -4,7 +4,9 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  */
 
+import React from 'react';
 import { UIBlockLink } from './UIBlockLink';
+import { UIBlockMagnetContextMenu } from './UIBlockMagnetContextMenu';
 
 var UIGraphics = require('./UIGraphics');
 var UIStyles = require('./UIStyles');
@@ -23,9 +25,11 @@ export class UIBlockMagnet {
         this._radius = UIStyles.UIBlockMagnetDefaultRadius;
         this._parent = parent;
         this._links = [];
+        this._inputLink = null;
         this._moveMagnetHandlers = [];
 
         this._mouseClickId = UIEvents.addEventListener("mouseClick", (e) => this.mouseClickHandler(e));
+        this._contextMenuModeId = UIEvents.addEventListener("contextMenuMode", (e) => this.contextMenuModeHandler(e));
     }
 
     setContext(ctx) {
@@ -60,6 +64,14 @@ export class UIBlockMagnet {
 
     getPosition() {
         return this._pos;
+    }
+
+    removeLink(id) {
+        if (id >= this._links.length) {
+            return false;
+        }
+        this._links.splice(id, 1);
+        return true;
     }
 
     addEventListener(name, callback) {
@@ -104,6 +116,7 @@ export class UIBlockMagnet {
             link.attachTo(pos.x, pos.y, null);
             this.addEventListener("moveMagnet", (delta) => link.eventUpdateFrom(delta));
             this._links.push(link);
+            link.setId(this._links.length - 1);
             UIEvents.addState('currentLink', link);
             return true;
         } else if (this._type === "input" && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
@@ -111,7 +124,28 @@ export class UIBlockMagnet {
             var currentLink = UIEvents.getState('currentLink');
             currentLink.attachTo(this._pos.x + this._width / 2, this._pos.y + this._height / 2, this);
             this.addEventListener("moveMagnet", (delta) => currentLink.eventUpdateTo(delta));
+            if (this._inputLink) {
+                this._inputLink.getObjectFrom().removeLink(this._inputLink.getId());
+            }
+            this._inputLink = currentLink;
             UIEvents.removeState('currentLink');
+            return true;
+        }
+        return false;
+    }
+
+    contextMenuModeOnEditAndSave() {
+        if (this._inputLink) {
+            this._inputLink.toggleEditMode();
+        }
+    }
+
+    contextMenuModeHandler(e) {
+        var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+
+        if (this._type === "input" && this._inputLink && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
+            && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height) {
+            UIEvents.addState('custom-context-menu', <UIBlockMagnetContextMenu isEditing={this._inputLink.isInEditMode()} onEdit={() => this.contextMenuModeOnEditAndSave()} onSave={() => this.contextMenuModeOnEditAndSave()} />);
             return true;
         }
         return false;

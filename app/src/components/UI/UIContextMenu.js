@@ -7,11 +7,17 @@
 import React, { Component } from 'react';
 import { Menu, MenuItem } from "@blueprintjs/core";
 
+var UIEvents = require('./UIEvents');
+
 export class UIContextMenu extends Component {
     render() {
+        console.log(UIEvents.getState('custom-context-menu'));
+        if (UIEvents.getState('custom-context-menu')) {
+            return (UIEvents.getState('custom-context-menu'));
+        }
         return (
             <Menu>
-                <MenuItem onClick={this.props.onClick} iconName="new-object" text="New..." />
+                <MenuItem onClick={this.props.onClick} iconName="new-object" text="New..."/>
             </Menu>
         );
     }

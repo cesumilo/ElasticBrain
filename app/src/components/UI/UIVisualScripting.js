@@ -29,6 +29,7 @@ export class UIVisualScripting extends Component {
             mouseEndClickAndDropHandlers: [],
             mouseFollowHandlers: [],
             shouldUpdateHandlers: [],
+            contextMenuModeHandlers: [],
             willClickDrop: false,
             isClickDrop: false,
 
@@ -97,9 +98,22 @@ export class UIVisualScripting extends Component {
     }
 
     mouseDownHandler(e) {
-        this.setState({
-            willClickDrop: true
-        });
+        var i = 0;
+        if (e.button == UIEvents.getButton("mouseRightButton")) {
+            while (i < this.state.contextMenuModeHandlers.length && !this.state.contextMenuModeHandlers[i](e)) {
+                i++;
+            }
+            console.log("i: " + i);
+            if (i >= this.state.contextMenuModeHandlers.length) {
+                UIEvents.removeState('custom-context-menu');
+            }
+        }
+
+        if (e.button != UIEvents.getButton("mouseRightButton")) {
+            this.setState({
+                willClickDrop: true
+            });
+        }
     }
 
     mouseUpHandler(e) {
@@ -181,6 +195,9 @@ export class UIVisualScripting extends Component {
             case "mouseFollow":
                 this.state.mouseFollowHandlers.push(callback);
                 return this.state.mouseFollowHandlers.length - 1;
+            case "contextMenuMode":
+                this.state.contextMenuModeHandlers.push(callback);
+                return this.state.contextMenuModeHandlers.length - 1;
             default:
                 return -1;
         }
@@ -217,6 +234,12 @@ export class UIVisualScripting extends Component {
                     return false;
                 }
                 this.state.mouseFollowHandlers.splice(id, 1);
+                return true;
+            case "contextMenuMode":
+                if (id >= this.state.contextMenuModeHandlers.length) {
+                    return false;
+                }
+                this.state.contextMenuModeHandlers.splice(id, 1);
                 return true;
             default:
                 return false;

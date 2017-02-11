@@ -30,5 +30,14 @@ module.exports = {
 
     removeState(name) {
         delete this._states[name];
+    },
+
+    getButton(name) {
+        switch(name) {
+            case "mouseRightButton":
+                return 2;
+            default:
+                return -1;
+        }
     }
 };
