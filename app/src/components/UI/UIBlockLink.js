@@ -98,10 +98,6 @@ export class UIBlockLink {
         };
     }
 
-    mouseClickHandler(e) {
-        var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
-    }
-
     mouseBeginClickAndDrop(e) {
         var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
 

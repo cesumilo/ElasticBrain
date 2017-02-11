@@ -5,7 +5,7 @@
  */
 
 import React, { Component } from 'react';
-import { Menu, MenuDivider, MenuItem } from "@blueprintjs/core";
+import { Menu, MenuItem } from "@blueprintjs/core";
 
 export class UIContextMenu extends Component {
     render() {

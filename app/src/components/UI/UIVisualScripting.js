@@ -6,7 +6,6 @@
 
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { BlockLink } from './UIBlockLink';
 import { ContextMenu } from "@blueprintjs/core";
 import { UIContextMenu } from './UIContextMenu';
 import { UIBlock } from './UIBlock';
@@ -150,8 +149,8 @@ export class UIVisualScripting extends Component {
             }
         }
 
-        for (var i = 0; i < this.state.mouseFollowHandlers.length; i++) {
-            if (this.state.mouseFollowHandlers[i]({
+        for (var j = 0; j < this.state.mouseFollowHandlers.length; j++) {
+            if (this.state.mouseFollowHandlers[j]({
                     x: pos.x - this.state.oldMousePosition.x,
                     y: pos.y - this.state.oldMousePosition.y
                 })) {
