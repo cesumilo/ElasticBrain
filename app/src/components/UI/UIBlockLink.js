@@ -6,6 +6,7 @@
 
 var UIGraphics = require('./UIGraphics');
 var UIStyles = require('./UIStyles');
+var UIEvents = require('./UIEvents');
 
 export class UIBlockLink {
 
@@ -21,8 +22,13 @@ export class UIBlockLink {
         this._canvas = null;
         this._trackCurvePointOne = false;
         this._trackCurvePointTwo = false;
-        this._trackFrom = false;
-        this._trackTo = true;
+        this._trackMouse = false;
+
+        this._mouseMoveId = UIEvents.addEventListener("mouseMove", (delta) => this.mouseMoveHandler(delta));
+        this._mouseClickId = UIEvents.addEventListener("mouseClick", (e) => this.mouseClickHandler(e));
+        this._mouseBeginClickAndDropId = UIEvents.addEventListener("mouseBeginClickAndDrop", (e) => this.mouseBeginClickAndDrop(e));
+        this._mouseEndClickAndDropId = UIEvents.addEventListener("mouseEndClickAndDrop", (e) => this.mouseEndClickAndDrop(e));
+        this._mouseFollowId = UIEvents.addEventListener("mouseFollow", (delta) => this.mouseMoveHandler(delta));
     }
 
     setContext(ctx) {
@@ -34,18 +40,6 @@ export class UIBlockLink {
         this._ctx = canvas.getContext('2d');
     }
 
-    isLinking() {
-        return this._trackTo;
-    }
-
-    getObjectAttachFrom() {
-        return this._objFrom;
-    }
-
-    getObjectAttachTo() {
-        return this._objTo;
-    }
-
     attachFrom(x, y, obj) {
         this._from = { x: x, y: y };
         this._curvesPoints[0].x = x;
@@ -53,13 +47,19 @@ export class UIBlockLink {
         this._curvesPoints[1].x = x;
         this._curvesPoints[1].y = y + this._curvesOffset;
         this._objFrom = obj;
+        this._trackMouse = true;
     }
 
     attachTo(x, y, obj) {
         this._to = { x: x, y: y };
         this._curvesPoints[1].x = x;
         this._curvesPoints[1].y = y + this._curvesOffset;
-        this._objTo = obj;
+
+        if (obj != null) {
+            this._objTo = obj;
+            UIEvents.removeEventListener("mouseFollow", this._mouseFollowId);
+            this._trackMouse = false;
+        }
     }
 
     eventUpdateFrom(delta) {
@@ -67,12 +67,20 @@ export class UIBlockLink {
             x: this._from.x + delta.x,
             y: this._from.y + delta.y
         };
+        this._curvesPoints[0] = {
+            x: this._curvesPoints[0].x + delta.x,
+            y: this._curvesPoints[0].y + delta.y
+        };
     }
 
     eventUpdateTo(delta) {
         this._to = {
             x: this._to.x + delta.x,
             y: this._to.y + delta.y
+        };
+        this._curvesPoints[1] = {
+            x: this._curvesPoints[1].x + delta.x,
+            y: this._curvesPoints[1].y + delta.y
         };
     }
 
@@ -92,28 +100,26 @@ export class UIBlockLink {
 
     mouseClickHandler(e) {
         var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
-        /*
-        if (nbClicks < 1) {
-            if (UIGraphics.euclidianDist(pos.x, this._curvesPoints[0].x, pos.y, this._curvesPoints[0].y) < this._circleRadius) {
-                this._trackCurvePointOne = true;
-            } else if (UIGraphics.euclidianDist(pos.x, this._curvesPoints[1].x, pos.y, this._curvesPoints[1].y) < this._circleRadius) {
-                this._trackCurvePointTwo = true;
-            }
-        } else {
-            this._trackCurvePointOne = false;
-            this._trackCurvePointTwo = false;
-            this._trackFrom = false;
-            this._trackTo = false;
-        }*/
+    }
+
+    mouseBeginClickAndDrop(e) {
+        var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+
+        if (UIGraphics.euclidianDist(this._curvesPoints[0].x, this._curvesPoints[0].y, pos.x, pos.y) < this._circleRadius) {
+            this._trackCurvePointOne = true;
+        } else if (UIGraphics.euclidianDist(pos.x, pos.y, this._curvesPoints[1].x, this._curvesPoints[1].y) < this._circleRadius) {
+            this._trackCurvePointTwo = true;
+        }
+    }
+
+    mouseEndClickAndDrop(e) {
+        this._trackCurvePointOne = false;
+        this._trackCurvePointTwo = false;
     }
 
     mouseMoveHandler(delta) {
-        if (this._trackTo) {
+        if (this._trackMouse) {
             this.eventUpdateTo(delta);
-        }
-
-        if (this._trackFrom) {
-            this.eventUpdateFrom(delta);
         }
 
         if (this._trackCurvePointOne) {

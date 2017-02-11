@@ -35,5 +35,5 @@ module.exports = {
     UIBlockLinkLineStrokeColor: "#8C0E00",
     UIBlockLinkBezierCurveStrokeColor: "#333",
     UIBlockLinkDefaultCurveOffset: 50,
-    UIBlockLinkDefaultCircleRadius: 20
+    UIBlockLinkDefaultCircleRadius: 10
 };

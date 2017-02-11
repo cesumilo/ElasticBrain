@@ -63,9 +63,22 @@ export class UIBlock {
         switch(name) {
             case "blockMove":
                 this._moveBlockHandlers.push(callback);
-                break;
+                return this._moveBlockHandlers.length - 1;
             default:
-                break;
+                return -1;
+        }
+    }
+
+    removeEventListener(name, id) {
+        switch(name) {
+            case "blockMove":
+                if (id >= this._moveBlockHandlers.length) {
+                    return false;
+                }
+                this._moveBlockHandlers.splice(id, 1);
+                return true;
+            default:
+                return false;
         }
     }
 

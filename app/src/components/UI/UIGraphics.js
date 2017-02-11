@@ -44,7 +44,7 @@ module.exports = {
     },
 
     euclidianDist: function(x1, y1, x2, y2) {
-        return (Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)));
+        return (Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));
     },
 
     drawCircle: function(ctx, centerX, centerY, radius) {
@@ -70,7 +70,6 @@ module.exports = {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
-        ctx.closePath();
         ctx.stroke();
     },
 

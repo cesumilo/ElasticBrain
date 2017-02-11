@@ -13,6 +13,7 @@ import { UIBlock } from './UIBlock';
 import '../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
+var UIEvents = require('./UIEvents');
 
 export class UIVisualScripting extends Component {
 
@@ -27,6 +28,7 @@ export class UIVisualScripting extends Component {
             mouseMoveHandlers: [],
             mouseBeginClickAndDropHandlers: [],
             mouseEndClickAndDropHandlers: [],
+            mouseFollowHandlers: [],
             shouldUpdateHandlers: [],
             willClickDrop: false,
             isClickDrop: false,
@@ -34,6 +36,8 @@ export class UIVisualScripting extends Component {
             guiObjects: [],
             isContextMenuOpen: false
         };
+
+        UIEvents.setVisualScriptingUI(this);
     }
 
     componentDidMount() {
@@ -121,6 +125,8 @@ export class UIVisualScripting extends Component {
     }
 
     mouseMoveHandler(e) {
+        var pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);
+
         if (this.state.willClickDrop && !this.state.isClickDrop) {
             this.setState({
                 isClickDrop: true
@@ -133,7 +139,6 @@ export class UIVisualScripting extends Component {
         }
 
         if (this.state.isClickDrop) {
-            var pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);
             for (var i = 0; i < this.state.mouseMoveHandlers.length; i++) {
                 if (this.state.mouseMoveHandlers[i]({
                     x: pos.x - this.state.oldMousePosition.x,
@@ -142,6 +147,16 @@ export class UIVisualScripting extends Component {
                     this.forceUpdate();
                     break;
                 }
+            }
+        }
+
+        for (var i = 0; i < this.state.mouseFollowHandlers.length; i++) {
+            if (this.state.mouseFollowHandlers[i]({
+                    x: pos.x - this.state.oldMousePosition.x,
+                    y: pos.y - this.state.oldMousePosition.y
+                })) {
+                this.forceUpdate();
+                break;
             }
         }
 
@@ -154,18 +169,58 @@ export class UIVisualScripting extends Component {
         switch(name) {
             case "mouseClick":
                 this.state.mouseClickHandlers.push(callback);
-                break;
+                return this.state.mouseClickHandlers.length - 1;
             case "mouseMove":
                 this.state.mouseMoveHandlers.push(callback);
-                break;
+                return this.state.mouseMoveHandlers.length - 1;
             case "mouseBeginClickAndDrop":
                 this.state.mouseBeginClickAndDropHandlers.push(callback);
-                break;
+                return this.state.mouseBeginClickAndDropHandlers.length - 1;
             case "mouseEndClickAndDrop":
                 this.state.mouseEndClickAndDropHandlers.push(callback);
-                break;
+                return this.state.mouseEndClickAndDropHandlers.length - 1;
+            case "mouseFollow":
+                this.state.mouseFollowHandlers.push(callback);
+                return this.state.mouseFollowHandlers.length - 1;
             default:
-                break;
+                return -1;
+        }
+    }
+
+    removeEventListener(name, id) {
+        switch(name) {
+            case "mouseClick":
+                if (id >= this.state.mouseClickHandlers.length) {
+                    return false;
+                }
+                this.state.mouseClickHandlers.splice(id, 1);
+                return true;
+            case "mouseMove":
+                if (id >= this.state.mouseMoveHandlers.length) {
+                    return false;
+                }
+                this.state.mouseMoveHandlers.splice(id, 1);
+                return true;
+            case "mouseBeginClickAndDrop":
+                if (id >= this.state.mouseBeginClickAndDropHandlers.length) {
+                    return false;
+                }
+                this.state.mouseBeginClickAndDropHandlers.splice(id, 1);
+                return true;
+            case "mouseEndClickAndDrop":
+                if (id >= this.state.mouseEndClickAndDropHandlers.length) {
+                    return false;
+                }
+                this.state.mouseEndClickAndDropHandlers.splice(id, 1);
+                return true;
+            case "mouseFollow":
+                if (id >= this.state.mouseFollowHandlers.length) {
+                    return false;
+                }
+                this.state.mouseFollowHandlers.splice(id, 1);
+                return true;
+            default:
+                return false;
         }
     }
 
