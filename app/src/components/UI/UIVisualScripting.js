@@ -8,7 +8,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { ContextMenu } from "@blueprintjs/core";
 import { UIContextMenu } from './UIContextMenu';
-import { UIBlock } from './Blocks/UIBlock';
+import { Input } from './Blocks/Essentials/Input';
 import '../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
@@ -40,6 +40,10 @@ export class UIVisualScripting extends Component {
         UIEvents.setVisualScriptingUI(this);
     }
 
+    getCanvas() {
+        return this.state.canvas;
+    }
+
     componentDidMount() {
         this.setState({
             canvas: document.getElementById('vscripting-gui')
@@ -50,40 +54,7 @@ export class UIVisualScripting extends Component {
             this.state.canvas.addEventListener("mousemove", (e) => this.mouseMoveHandler(e));
             this.state.canvas.addEventListener("mouseup", (e) => this.mouseUpHandler(e));
 
-            // TEST
-            var block1 = new UIBlock("block1", {
-                inputs: [{ name: "a", src: null }],
-                outputs: [{ name: "b", dest: null }]
-            });
-            this.addDrawableObject(block1);
-            block1.setCanvas(this.state.canvas);
-            block1.generateMagnets();
-            this.addEventListener("mouseBeginClickAndDrop", (e) => block1.mouseBeginClickAndDropHandler(e));
-            this.addEventListener("mouseEndClickAndDrop", (e) => block1.mouseEndClickAndDropHandler(e));
-            this.addEventListener("mouseMove", (e) => block1.update(e));
-
-            var block2 = new UIBlock("block2", {
-                inputs: [{ name: "c", src: null }],
-                outputs: [{ name: "d", dest: null }]
-            });
-            this.addDrawableObject(block2);
-            block2.setCanvas(this.state.canvas);
-            block2.generateMagnets();
-            this.addEventListener("mouseBeginClickAndDrop", (e) => block2.mouseBeginClickAndDropHandler(e));
-            this.addEventListener("mouseEndClickAndDrop", (e) => block2.mouseEndClickAndDropHandler(e));
-            this.addEventListener("mouseMove", (e) => block2.update(e));
-
-            var block3 = new UIBlock("block3", {
-                inputs: [{ name: "c", src: null }],
-                outputs: [{ name: "d", dest: null }]
-            });
-            this.addDrawableObject(block3);
-            block3.setCanvas(this.state.canvas);
-            block3.generateMagnets();
-            this.addEventListener("mouseBeginClickAndDrop", (e) => block3.mouseBeginClickAndDropHandler(e));
-            this.addEventListener("mouseEndClickAndDrop", (e) => block3.mouseEndClickAndDropHandler(e));
-            this.addEventListener("mouseMove", (e) => block3.update(e));
-            //FIN TEST
+            // TODO: Load Blueprint
 
             this.setState({
                 ctx: this.state.canvas.getContext('2d')

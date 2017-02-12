@@ -12,6 +12,10 @@ module.exports = {
         this._ref = ref;
     },
 
+    getVisualScriptingUI: function() {
+        return this._ref;
+    },
+
     addEventListener: function(name, callback) {
         this._ref.addEventListener(name, callback);
     },

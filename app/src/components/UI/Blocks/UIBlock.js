@@ -8,6 +8,7 @@ import { UIBlockMagnet } from './UIBlockMagnet';
 
 var UIGraphics = require('./../UIGraphics');
 var UIStyles = require('./../UIStyles');
+var UIEvents = require('./../UIEvents');
 
 export class UIBlock {
 
@@ -25,6 +26,10 @@ export class UIBlock {
         this._inputs = [];
         this._outputs = [];
         this._name = name;
+
+        this._mouseBeginClickAndDropId = UIEvents.addEventListener("mouseBeginClickAndDrop", (e) => this.mouseBeginClickAndDropHandler(e));
+        this._mouseEndClickAndDropId = UIEvents.addEventListener("mouseEndClickAndDrop", (e) => this.mouseEndClickAndDropHandler(e));
+        this._mouseMoveId = UIEvents.addEventListener("mouseMove", (e) => this.update(e));
 
         if (options.hasOwnProperty("inputs")) {
             for (var i = 0; i < options['inputs'].length; i++) {
