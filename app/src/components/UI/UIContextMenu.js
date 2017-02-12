@@ -11,7 +11,6 @@ var UIEvents = require('./UIEvents');
 
 export class UIContextMenu extends Component {
     render() {
-        console.log(UIEvents.getState('custom-context-menu'));
         if (UIEvents.getState('custom-context-menu')) {
             return (UIEvents.getState('custom-context-menu'));
         }

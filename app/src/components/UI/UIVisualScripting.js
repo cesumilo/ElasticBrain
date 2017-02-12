@@ -103,7 +103,6 @@ export class UIVisualScripting extends Component {
             while (i < this.state.contextMenuModeHandlers.length && !this.state.contextMenuModeHandlers[i](e)) {
                 i++;
             }
-            console.log("i: " + i);
             if (i >= this.state.contextMenuModeHandlers.length) {
                 UIEvents.removeState('custom-context-menu');
             }

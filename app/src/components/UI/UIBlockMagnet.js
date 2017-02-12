@@ -145,7 +145,7 @@ export class UIBlockMagnet {
 
         if (this._type === "input" && this._inputLink && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
             && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height) {
-            UIEvents.addState('custom-context-menu', <UIBlockMagnetContextMenu isEditing={this._inputLink.isInEditMode()} onEdit={() => this.contextMenuModeOnEditAndSave()} onSave={() => this.contextMenuModeOnEditAndSave()} />);
+            UIEvents.addState('custom-context-menu', <UIBlockMagnetContextMenu isEditing={this._inputLink.isInEditMode()} onEdit={() => this.contextMenuModeOnEditAndSave()} onSave={() => this.contextMenuModeOnEditAndSave()} onCut={() => this._inputLink.getObjectFrom().removeLink(this._inputLink.getId())} />);
             return true;
         }
         return false;

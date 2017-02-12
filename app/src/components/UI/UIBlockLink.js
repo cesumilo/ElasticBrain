@@ -27,7 +27,6 @@ export class UIBlockLink {
         this._showEditCurve = true;
 
         this._mouseMoveId = UIEvents.addEventListener("mouseMove", (delta) => this.mouseMoveHandler(delta));
-        this._mouseClickId = UIEvents.addEventListener("mouseClick", (e) => this.mouseClickHandler(e));
         this._mouseBeginClickAndDropId = UIEvents.addEventListener("mouseBeginClickAndDrop", (e) => this.mouseBeginClickAndDrop(e));
         this._mouseEndClickAndDropId = UIEvents.addEventListener("mouseEndClickAndDrop", (e) => this.mouseEndClickAndDrop(e));
         this._mouseFollowId = UIEvents.addEventListener("mouseFollow", (delta) => this.mouseMoveHandler(delta));
@@ -59,11 +58,11 @@ export class UIBlockLink {
     }
 
     getObjectFrom() {
-        this._objFrom;
+        return this._objFrom;
     }
 
     getObjectTo() {
-        this._objTo;
+        return this._objTo;
     }
 
     attachFrom(x, y, obj) {
@@ -178,6 +177,4 @@ export class UIBlockLink {
             this._curvesPoints[1].x, this._curvesPoints[1].y,
             this._to.x, this._to.y);
     }
-
-    // Private attributes
 };
