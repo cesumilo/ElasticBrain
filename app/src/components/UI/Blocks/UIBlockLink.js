@@ -4,9 +4,9 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  */
 
-var UIGraphics = require('./UIGraphics');
-var UIStyles = require('./UIStyles');
-var UIEvents = require('./UIEvents');
+var UIGraphics = require('./../UIGraphics');
+var UIStyles = require('./../UIStyles');
+var UIEvents = require('./../UIEvents');
 
 export class UIBlockLink {
 

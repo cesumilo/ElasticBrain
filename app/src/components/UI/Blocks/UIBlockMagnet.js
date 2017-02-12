@@ -8,9 +8,9 @@ import React from 'react';
 import { UIBlockLink } from './UIBlockLink';
 import { UIBlockMagnetContextMenu } from './UIBlockMagnetContextMenu';
 
-var UIGraphics = require('./UIGraphics');
-var UIStyles = require('./UIStyles');
-var UIEvents = require('./UIEvents');
+var UIGraphics = require('./../UIGraphics');
+var UIStyles = require('./../UIStyles');
+var UIEvents = require('./../UIEvents');
 
 export class UIBlockMagnet {
 

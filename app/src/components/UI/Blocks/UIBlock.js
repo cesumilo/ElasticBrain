@@ -6,12 +6,13 @@
 
 import { UIBlockMagnet } from './UIBlockMagnet';
 
-var UIGraphics = require('./UIGraphics');
-var UIStyles = require('./UIStyles');
+var UIGraphics = require('./../UIGraphics');
+var UIStyles = require('./../UIStyles');
 
 export class UIBlock {
 
     constructor(name, options = {}) {
+        this._type = "default";
         this._ctx = null;
         this._canvas = null;
         this._pos = { x: 100, y: 100 };

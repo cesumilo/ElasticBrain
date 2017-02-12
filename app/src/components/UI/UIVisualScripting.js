@@ -8,7 +8,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { ContextMenu } from "@blueprintjs/core";
 import { UIContextMenu } from './UIContextMenu';
-import { UIBlock } from './UIBlock';
+import { UIBlock } from './Blocks/UIBlock';
 import '../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
@@ -72,6 +72,17 @@ export class UIVisualScripting extends Component {
             this.addEventListener("mouseBeginClickAndDrop", (e) => block2.mouseBeginClickAndDropHandler(e));
             this.addEventListener("mouseEndClickAndDrop", (e) => block2.mouseEndClickAndDropHandler(e));
             this.addEventListener("mouseMove", (e) => block2.update(e));
+
+            var block3 = new UIBlock("block3", {
+                inputs: [{ name: "c", src: null }],
+                outputs: [{ name: "d", dest: null }]
+            });
+            this.addDrawableObject(block3);
+            block3.setCanvas(this.state.canvas);
+            block3.generateMagnets();
+            this.addEventListener("mouseBeginClickAndDrop", (e) => block3.mouseBeginClickAndDropHandler(e));
+            this.addEventListener("mouseEndClickAndDrop", (e) => block3.mouseEndClickAndDropHandler(e));
+            this.addEventListener("mouseMove", (e) => block3.update(e));
             //FIN TEST
 
             this.setState({
@@ -99,7 +110,7 @@ export class UIVisualScripting extends Component {
 
     mouseDownHandler(e) {
         var i = 0;
-        if (e.button == UIEvents.getButton("mouseRightButton")) {
+        if (e.button === UIEvents.getButton("mouseRightButton")) {
             while (i < this.state.contextMenuModeHandlers.length && !this.state.contextMenuModeHandlers[i](e)) {
                 i++;
             }
@@ -108,7 +119,7 @@ export class UIVisualScripting extends Component {
             }
         }
 
-        if (e.button != UIEvents.getButton("mouseRightButton")) {
+        if (e.button !== UIEvents.getButton("mouseRightButton")) {
             this.setState({
                 willClickDrop: true
             });
