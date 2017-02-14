@@ -4,8 +4,10 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  */
 
+import React from 'react';
 import { UIBlock } from '../UIBlock';
 import { InputContextMenu } from './InputContextMenu';
+import { InputEditDialog } from './InputEditDialog';
 
 var UIEvents = require('../../UIEvents');
 var UIGraphics = require('../../UIGraphics');
@@ -17,6 +19,17 @@ export class Input extends UIBlock {
         }
         super(name, options);
         this._type = "input";
+        UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
+    }
+
+    handleEditCloseMenu() {
+        UIEvents.getState('extraContents').splice(this._extraContentIndex, 1);
+        delete this._extraContentIndex;
+    }
+
+    onEditContextMenu() {
+        UIEvents.getState('extraContents').push(<InputEditDialog onClose={() => this.handleEditCloseMenu()}/>);
+        this._extraContentIndex = UIEvents.getState('extraContents').length - 1;
     }
 
     contextMenuModeHandler(e) {
@@ -24,7 +37,7 @@ export class Input extends UIBlock {
 
         if (pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
             && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height) {
-            UIEvents.addState('custom-context-menu', <InputContextMenu/>);
+            UIEvents.addState('custom-context-menu', <InputContextMenu onClick={() => this.onEditContextMenu()}/>);
             return true;
         }
         return false;

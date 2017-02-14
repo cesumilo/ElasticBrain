@@ -8,10 +8,8 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { ContextMenu } from "@blueprintjs/core";
 import { UIContextMenu } from './UIContextMenu';
-import { Input } from './Blocks/Essentials/Input';
 import { UIBlock } from './Blocks/UIBlock';
 import { Blueprint } from './Blueprint';
-import { UIBlueprint } from './UIBlueprint';
 import '../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
@@ -237,7 +235,6 @@ export class UIVisualScripting extends Component {
     }
 
     showContextMenu(e) {
-        // must prevent default to cancel parent's context menu
         e.preventDefault();
         ContextMenu.show(<UIContextMenu/>, { left: e.clientX, top: e.clientY }, () => this.onContextMenuClose());
         this.setState({ isContextMenuOpen: true });
@@ -249,8 +246,14 @@ export class UIVisualScripting extends Component {
 
     render() {
         const classes = classNames("context-menu-node", { "context-menu-open": this.state.isContextMenuOpen });
+        var contents = UIEvents.getState('extraContents').map(function(content, i){
+            var elem = React.cloneElement(content, { key: 'content_' + i });
+            return elem;
+        });
+
         return (
             <div className={classes} onContextMenu={(e) => this.showContextMenu(e)}>
+                {contents}
                 <canvas id="vscripting-gui"></canvas>
             </div>
         );

@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 import { Menu, MenuItem } from "@blueprintjs/core";
 
-export class InputContextMenu extends Component {
+export class OutputContextMenu extends Component {
     render() {
         return (
             <Menu>

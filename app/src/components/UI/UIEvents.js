@@ -6,7 +6,9 @@
 
 module.exports = {
     _ref: null,
-    _states : {},
+    _states : {
+        extraContents: []
+    },
 
     setVisualScriptingUI: function(ref) {
         this._ref = ref;
