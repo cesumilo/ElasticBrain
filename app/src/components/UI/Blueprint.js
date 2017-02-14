@@ -4,11 +4,38 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  */
 
+import { Input } from './Blocks/Essentials/Input';
+import { Output } from './Blocks/Essentials/Output';
+
 var UIEvents = require('./UIEvents');
 
 export class Blueprint {
-    constructor() {
+    constructor(name, inputs=[], outputs=["output"]) {
         this._blocks = [];
+        this._name = name;
+        this._outputs = outputs;
+        this._inputs = inputs;
+
+        if (this._inputs.length > 0) {
+            this.addBlock(new Input("Blueprint Inputs", {
+                outputs: this._inputs
+            }));
+        }
+
+        this.addBlock(new Output("Blueprint Outputs", {
+            inputs: this._outputs
+        }));
+    }
+
+    getName() {
+        return this._name;
+    }
+
+    getOptions() {
+        return {
+            inputs: this._inputs,
+            outputs: this._outputs
+        };
     }
 
     addBlock(block) {
@@ -22,11 +49,11 @@ export class Blueprint {
     }
 
     loadFromFile(filename) {
-
+        // TODO
     }
 
     saveToFile(filename) {
-
+        // TODO
     }
 
     draw() {

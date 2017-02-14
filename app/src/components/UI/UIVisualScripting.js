@@ -9,6 +9,9 @@ import classNames from 'classnames';
 import { ContextMenu } from "@blueprintjs/core";
 import { UIContextMenu } from './UIContextMenu';
 import { Input } from './Blocks/Essentials/Input';
+import { UIBlock } from './Blocks/UIBlock';
+import { Blueprint } from './Blueprint';
+import { UIBlueprint } from './UIBlueprint';
 import '../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
@@ -55,6 +58,12 @@ export class UIVisualScripting extends Component {
             this.state.canvas.addEventListener("mouseup", (e) => this.mouseUpHandler(e));
 
             // TODO: Load Blueprint
+            var blueprint = new Blueprint("blueprint", ["inputs Power"]);
+            blueprint.addBlock(new UIBlock("test", {
+                inputs: ["a"],
+                outputs: ["b"]
+            }));
+            this.addDrawableObject(blueprint);
 
             this.setState({
                 ctx: this.state.canvas.getContext('2d')
