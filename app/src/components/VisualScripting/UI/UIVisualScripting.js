@@ -10,7 +10,7 @@ import { ContextMenu } from "@blueprintjs/core";
 import { UIContextMenu } from './UIContextMenu';
 import { UIBlock } from './Blocks/UIBlock';
 import { Blueprint } from './Blueprint';
-import '../../../public/css/VScriptingGUI.css';
+import '../../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
 var UIEvents = require('./UIEvents');
