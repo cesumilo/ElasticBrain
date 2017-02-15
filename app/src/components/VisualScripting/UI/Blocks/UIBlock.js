@@ -31,6 +31,15 @@ export class UIBlock {
         this._mouseEndClickAndDropId = UIEvents.addEventListener("mouseEndClickAndDrop", (e) => this.mouseEndClickAndDropHandler(e));
         this._mouseMoveId = UIEvents.addEventListener("mouseMove", (e) => this.update(e));
 
+        this.generateVariables(options);
+
+        var nbElements = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);
+        this._height = (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset)
+            + ((UIStyles.UIBlockDefaultUIBlockLinkOffset * nbElements)
+            + (UIStyles.UIBlockMagnetDefaultHeight * (nbElements + 1)));
+    }
+
+    generateVariables(options) {
         if (options.hasOwnProperty("inputs")) {
             for (var i = 0; i < options['inputs'].length; i++) {
                 !function(ref, length) {
@@ -58,11 +67,6 @@ export class UIBlock {
                 }(this, this._drawables.length + 1);
             }
         }
-
-        var nbElements = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);
-        this._height = (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset)
-            + ((UIStyles.UIBlockDefaultUIBlockLinkOffset * nbElements)
-            + (UIStyles.UIBlockMagnetDefaultHeight * (nbElements + 1)));
     }
 
     addEventListener(name, callback) {

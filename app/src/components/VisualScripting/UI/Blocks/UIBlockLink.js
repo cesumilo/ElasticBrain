@@ -67,10 +67,10 @@ export class UIBlockLink {
 
     attachFrom(x, y, obj) {
         this._from = { x: x, y: y };
-        this._curvesPoints[0].x = x;
-        this._curvesPoints[0].y = y - this._curvesOffset;
-        this._curvesPoints[1].x = x;
-        this._curvesPoints[1].y = y + this._curvesOffset;
+        this._curvesPoints[0].x = x + this._curvesOffset;
+        this._curvesPoints[0].y = y;
+        this._curvesPoints[1].x = x - this._curvesOffset;
+        this._curvesPoints[1].y = y;
         this._objFrom = obj;
         this._trackMouse = true;
         this._showEditCurve = true;
@@ -78,8 +78,8 @@ export class UIBlockLink {
 
     attachTo(x, y, obj) {
         this._to = { x: x, y: y };
-        this._curvesPoints[1].x = x;
-        this._curvesPoints[1].y = y + this._curvesOffset;
+        this._curvesPoints[1].x = x - this._curvesOffset;
+        this._curvesPoints[1].y = y;
 
         if (obj != null) {
             this._objTo = obj;

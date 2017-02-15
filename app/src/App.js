@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react';
 import { NavBar } from './components/NavBar.js';
-import { UIVisualScripting } from './components/UI/UIVisualScripting.js';
+import { UIVisualScripting } from './components/VisualScripting/UI/UIVisualScripting.js';
 
 import '../node_modules/normalize.css/normalize.css';
 import '../node_modules/@blueprintjs/core/dist/blueprint.css';
