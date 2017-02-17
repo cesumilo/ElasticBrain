@@ -32,20 +32,20 @@ export class UIBlock {
         this._mouseMoveId = UIEvents.addEventListener("mouseMove", (e) => this.update(e));
 
         this.generateVariables(options);
-
-        var nbElements = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);
-        this._height = (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset)
-            + ((UIStyles.UIBlockDefaultUIBlockLinkOffset * nbElements)
-            + (UIStyles.UIBlockMagnetDefaultHeight * (nbElements + 1)));
     }
 
     generateVariables(options) {
+        this._inputs = [];
+        this._drawables = [];
+        this._outputs = [];
+        this._moveBlockHandlers = [];
+
         if (options.hasOwnProperty("inputs")) {
             for (var i = 0; i < options['inputs'].length; i++) {
                 !function(ref, length) {
                     var input = new UIBlockMagnet(ref, options['inputs'][i], true);
                     ref._drawables.push(input);
-                    ref._inputs.push({ index: length, obj: ref._drawables[length - 1] });
+                    ref._inputs.push({ index: length, obj: ref._drawables[length - 1], name: options['inputs'][i] });
                     ref._drawables[length - 1].setPosition(ref._pos.x - UIStyles.UIBlockMagnetDefaultWidth - 1,
                         (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y
                         + (i * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));
@@ -59,7 +59,7 @@ export class UIBlock {
                 !function (ref, length) {
                     var output = new UIBlockMagnet(ref, options['outputs'][j]);
                     ref._drawables.push(output);
-                    ref._outputs.push({ index: length, obj: output });
+                    ref._outputs.push({ index: length, obj: output, name: options['outputs'][j] });
                     ref._drawables[length - 1].setPosition(ref._pos.x + ref._width + 1,
                         (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y
                         + (j * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));
@@ -67,6 +67,11 @@ export class UIBlock {
                 }(this, this._drawables.length + 1);
             }
         }
+
+        var nbElements = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);
+        this._height = (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset)
+            + ((UIStyles.UIBlockDefaultUIBlockLinkOffset * nbElements)
+            + (UIStyles.UIBlockMagnetDefaultHeight * (nbElements + 1)));
     }
 
     addEventListener(name, callback) {

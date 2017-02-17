@@ -27,8 +27,15 @@ export class Input extends UIBlock {
         delete this._extraContentIndex;
     }
 
+    saveChanges(options) {
+        this.generateVariables(options);
+        this.generateMagnets();
+    }
+
     onEditContextMenu() {
-        UIEvents.getState('extraContents').push(<InputEditDialog onClose={() => this.handleEditCloseMenu()}/>);
+        UIEvents.getState('extraContents').push(<InputEditDialog onClose={() => this.handleEditCloseMenu()} save={(options) => this.saveChanges(options)} inputs={this._outputs.map(function(output) {
+            return output.name;
+        })}/>);
         this._extraContentIndex = UIEvents.getState('extraContents').length - 1;
     }
 
