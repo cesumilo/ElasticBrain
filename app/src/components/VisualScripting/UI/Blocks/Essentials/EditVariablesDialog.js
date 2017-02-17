@@ -1,13 +1,20 @@
 /**
- * Created by Cesumilo on 14/02/2017.
+ * Created by Cesumilo on 17/02/2017.
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  */
 
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { Button, Dialog, Intent } from "@blueprintjs/core";
 
-export class InputEditDialog extends Component {
+export class EditVariablesDialog extends Component {
+
+    static propTypes = {
+        title: PropTypes.string.isRequired,
+        save: PropTypes.func.isRequired,
+        inputs: PropTypes.array.isRequired
+    };
+
     constructor() {
         super();
         this.state = {
@@ -82,7 +89,7 @@ export class InputEditDialog extends Component {
 
         return (
             <div>
-                <Dialog iconName="build" isOpen={this.state.isOpen} onClose={() => this.toggleDialog()} title="Edit Blueprint Inputs">
+                <Dialog iconName="build" isOpen={this.state.isOpen} onClose={() => this.toggleDialog()} title={this.props.title}>
                     <div className="pt-dialog-body">
                         {variables}
                     </div>

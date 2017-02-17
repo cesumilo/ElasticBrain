@@ -4,8 +4,7 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  */
 
-import { Input } from './Blocks/Essentials/Input';
-import { Output } from './Blocks/Essentials/Output';
+import { BlueprintBlock } from './Blocks/Essentials/BlueprintBlock';
 
 var UIEvents = require('./UIEvents');
 
@@ -17,12 +16,18 @@ export class Blueprint {
         this._inputs = inputs;
 
         if (this._inputs.length > 0) {
-            this.addBlock(new Input("Blueprint Inputs", {
+            this.addBlock(new BlueprintBlock("Blueprint Inputs",
+                "input", "inputs",
+                "Blueprint Inputs Edit",
+                "outputs", {
                 outputs: this._inputs
             }));
         }
 
-        this.addBlock(new Output("Blueprint Outputs", {
+        this.addBlock(new BlueprintBlock("Blueprint Outputs",
+            "output", "outputs",
+            "Blueprint Outputs Edit",
+            "inputs", {
             inputs: this._outputs
         }));
     }

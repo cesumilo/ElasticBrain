@@ -6,19 +6,21 @@
 
 import React from 'react';
 import { UIBlock } from '../UIBlock';
-import { InputContextMenu } from './InputContextMenu';
-import { InputEditDialog } from './InputEditDialog';
+import { EditContextMenu } from './EditContextMenu';
+import { EditVariablesDialog } from './EditVariablesDialog';
 
 var UIEvents = require('../../UIEvents');
 var UIGraphics = require('../../UIGraphics');
 
-export class Input extends UIBlock {
-    constructor(name, options={}) {
-        if (options.hasOwnProperty('inputs')) {
-            delete options['inputs'];
+export class BlueprintBlock extends UIBlock {
+    constructor(name, type, property, menuTitle, data, options={}) {
+        if (options.hasOwnProperty(property)) {
+            delete options[property];
         }
         super(name, options);
-        this._type = "input";
+        this._type = type;
+        this._title = menuTitle;
+        this._dataName = data;
         UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
     }
 
@@ -33,9 +35,13 @@ export class Input extends UIBlock {
     }
 
     onEditContextMenu() {
-        UIEvents.getState('extraContents').push(<InputEditDialog onClose={() => this.handleEditCloseMenu()} save={(options) => this.saveChanges(options)} inputs={this._outputs.map(function(output) {
-            return output.name;
-        })}/>);
+        UIEvents.getState('extraContents').push(<EditVariablesDialog onClose={() => this.handleEditCloseMenu()}
+                                                                     save={(options) => this.saveChanges(options)}
+                                                                     inputs={this['_' + this._dataName].map(function(output) {
+                                                                         return output.name;
+                                                                     })}
+                                                                     title={this._title}
+        />);
         this._extraContentIndex = UIEvents.getState('extraContents').length - 1;
     }
 
@@ -44,7 +50,7 @@ export class Input extends UIBlock {
 
         if (pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
             && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height) {
-            UIEvents.addState('custom-context-menu', <InputContextMenu onClick={() => this.onEditContextMenu()}/>);
+            UIEvents.addState('custom-context-menu', <EditContextMenu onClick={() => this.onEditContextMenu()}/>);
             return true;
         }
         return false;
