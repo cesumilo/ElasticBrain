@@ -62,9 +62,9 @@ export class EditVariablesDialog extends Component {
         var variables = Array.prototype.slice.call(document.querySelectorAll(".input-variable-name")).map(function(input) {
             return input.value;
         });
-        this.props.save({
-            outputs: variables
-        });
+        const options = {};
+        options[this.props.data] = variables;
+        this.props.save(options);
         this.toggleDialog();
     }
 

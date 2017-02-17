@@ -41,6 +41,7 @@ export class BlueprintBlock extends UIBlock {
                                                                          return output.name;
                                                                      })}
                                                                      title={this._title}
+                                                                     data={this._dataName}
         />);
         this._extraContentIndex = UIEvents.getState('extraContents').length - 1;
     }
