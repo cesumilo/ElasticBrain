@@ -24,6 +24,8 @@ export class BlueprintBlock extends UIBlock {
         this._dataName = data;
         this._uiBlockColor = UIStyles.BlueprintBlockColor;
         this._uiBlockHeaderColor = UIStyles.BlueprintBlockHeaderColor;
+        this._generatedFlowMagnets = options['flowBooleans'];
+
         UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
     }
 
@@ -35,6 +37,7 @@ export class BlueprintBlock extends UIBlock {
     saveChanges(options) {
         this.generateVariables(options);
         this.generateMagnets();
+        this.generateFlowMagnets(this._generatedFlowMagnets[0], this._generatedFlowMagnets[1]);
     }
 
     onEditContextMenu() {

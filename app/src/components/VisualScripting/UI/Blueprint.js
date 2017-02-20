@@ -20,7 +20,8 @@ export class Blueprint {
                 "input", "inputs",
                 "Blueprint Inputs Edit",
                 "outputs", {
-                outputs: this._inputs
+                outputs: this._inputs,
+                    flowBooleans: [ false, true ]
             }), false, true);
         }
 
@@ -28,7 +29,8 @@ export class Blueprint {
             "output", "outputs",
             "Blueprint Outputs Edit",
             "inputs", {
-            inputs: this._outputs
+            inputs: this._outputs,
+                flowBooleans: [ true, false ]
         }), true, false);
     }
 
