@@ -10,7 +10,7 @@ var UIEvents = require('./../UIEvents');
 
 export class UIBlockLink {
 
-    constructor() {
+    constructor(color="#424242", gradient=false, gradient_color=[]) {
         this._objFrom = null;
         this._objTo = null;
         this._id = 0;
@@ -25,6 +25,13 @@ export class UIBlockLink {
         this._trackCurvePointTwo = false;
         this._trackMouse = false;
         this._showEditCurve = true;
+        this._strokeStyle = color;
+        this._isGradient = gradient;
+        this._gradientColor = gradient_color;
+
+        if (this._gradientColor.length < 2) {
+            this._isGradient = false;
+        }
 
         this._mouseMoveId = UIEvents.addEventListener("mouseMove", (delta) => this.mouseMoveHandler(delta));
         this._mouseBeginClickAndDropId = UIEvents.addEventListener("mouseBeginClickAndDrop", (e) => this.mouseBeginClickAndDrop(e));
@@ -44,12 +51,20 @@ export class UIBlockLink {
         this._ctx = ctx;
     }
 
+    setStrokeStyle(color) {
+        this._strokeStyle = color;
+    }
+
     toggleEditMode() {
         this._showEditCurve = !this._showEditCurve;
     }
 
     isInEditMode() {
         return this._showEditCurve;
+    }
+
+    setColor(color) {
+        this._strokeStyle = color;
     }
 
     setCanvas(canvas) {
@@ -170,11 +185,16 @@ export class UIBlockLink {
             UIGraphics.drawLine(this._ctx, this._to.x, this._to.y, this._curvesPoints[1].x, this._curvesPoints[1].y);
         }
 
-        this._ctx.strokeStyle = UIStyles.UIBlockLinkBezierCurveStrokeColor;
+        if (this._strokeStyle == null) {
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkBezierCurveStrokeColor;
+        } else {
+            this._ctx.strokeStyle = this._strokeStyle;
+        }
+
         UIGraphics.drawBezierCurve(this._ctx,
             this._from.x, this._from.y,
             this._curvesPoints[0].x, this._curvesPoints[0].y,
             this._curvesPoints[1].x, this._curvesPoints[1].y,
             this._to.x, this._to.y);
     }
-};
+}

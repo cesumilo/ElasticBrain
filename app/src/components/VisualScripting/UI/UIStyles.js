@@ -7,8 +7,8 @@
 module.exports = {
 
     // UIBlockMagnet Style
-    UIBlockMagnetInputFillColor: "#79DDEB",
-    UIBlockMagnetOutputFillColor: "#FF9E29",
+    UIBlockMagnetInputFillColor: "#FFC107",
+    UIBlockMagnetOutputFillColor: "#FF9800",
     UIBlockMagnetInputStrokeColor: "#6282CA",
     UIBlockMagnetOutputStrokeColor: "#FF6029",
     UIBlockMagnetDefaultWidth: 10,
@@ -17,7 +17,7 @@ module.exports = {
     UIBlockMagnetDefaultName: "no_name",
 
     // UIBlock Styles
-    UIBlockFillColor: "rgba(74, 94, 163, " + 0.5 + ")",
+    UIBlockFillColor: "#F44336",
     UIBlockStrokeColor: "#2E2C61",
     UIBlockDefaultWidth: 100,
     UIBlockDefaultHeight: 100,
@@ -28,6 +28,9 @@ module.exports = {
     UIBlockDefaultFont: "18px Arial",
     UIBlockDefaultCorpusOffset: 30,
     UIBlockTextColor: "black",
+    UIBlockShadowBlur: 2,
+    UIBlockShadowColor: "rgba(0,0,0,0.5)",
+    UIBlockHeaderColor: "#D32F2F",
 
     // UIBlockLink Styles
     UIBlockLinkCircleFillColor: "rgba(255, 95, 76, " + 0.5 + ")",
@@ -35,5 +38,15 @@ module.exports = {
     UIBlockLinkLineStrokeColor: "#8C0E00",
     UIBlockLinkBezierCurveStrokeColor: "#333",
     UIBlockLinkDefaultCurveOffset: 50,
-    UIBlockLinkDefaultCircleRadius: 10
+    UIBlockLinkDefaultCircleRadius: 10,
+
+    // UIBlockFlow
+    UIBlockFlowFillColor: "#EBDE19",
+    UIBlockFlowStrokeColor: "#9E9E9E",
+
+    // BlueprintBlock
+    BlueprintBlockColor: "#9C27B0",
+    BlueprintBlockHeaderColor: "#7B1FA2",
+    BlueprintBlockMagnetColor: "#4A148C",
+    BlueprintBlockFlowColor: "#BA68C8"
 };

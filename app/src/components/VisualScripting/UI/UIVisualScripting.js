@@ -10,15 +10,19 @@ import { ContextMenu } from "@blueprintjs/core";
 import { UIContextMenu } from './UIContextMenu';
 import { UIBlock } from './Blocks/UIBlock';
 import { Blueprint } from './Blueprint';
+import { UIBlueprint } from './UIBlueprint';
+import { UIBackground } from './UIBackground';
 import '../../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
 var UIEvents = require('./UIEvents');
+var UIStyles = require('./UIStyles');
 
 export class UIVisualScripting extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+        this.background =  new UIBackground();
         this.state = {
             canvas: null,
             ctx: null,
@@ -49,6 +53,7 @@ export class UIVisualScripting extends Component {
         this.setState({
             canvas: document.getElementById('vscripting-gui')
         }, function() {
+            this.background.setCanvas(this.state.canvas);
             this.state.canvas.setAttribute("width", document.body.clientWidth);
             this.state.canvas.setAttribute("height", document.body.clientHeight * 0.938);
             this.state.canvas.addEventListener("mousedown", (e) => this.mouseDownHandler(e));
@@ -56,11 +61,13 @@ export class UIVisualScripting extends Component {
             this.state.canvas.addEventListener("mouseup", (e) => this.mouseUpHandler(e));
 
             // TODO: Load Blueprint
-            var blueprint = new Blueprint("blueprint", ["inputs Power"]);
-            blueprint.addBlock(new UIBlock("test", {
+            var blueprint = new Blueprint("blueprint", ["position", "scale"], ["position"]);
+            blueprint.addBlock(new UIBlock("test", "#B71C1C", "#000000", {
                 inputs: ["a"],
                 outputs: ["b"]
-            }));
+            }, "#000000"));
+            var ui = new UIBlueprint(blueprint);
+            ui.setCanvas(this.state.canvas);
             this.addDrawableObject(blueprint);
 
             this.setState({
@@ -71,9 +78,12 @@ export class UIVisualScripting extends Component {
         });
     }
 
-    componentWillUpdate() {
+    componentDidUpdate() {
         if (this.state.ctx) {
-            this.state.ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
+            this.state.canvas.width = this.state.canvas.width;
+            //this.state.ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
+            this.background.draw();
+
             for (var i = 0; i < this.state.guiObjects.length; i++) {
                 this.state.guiObjects[i].draw();
             }
@@ -254,6 +264,7 @@ export class UIVisualScripting extends Component {
         return (
             <div className={classes} onContextMenu={(e) => this.showContextMenu(e)}>
                 {contents}
+                <img id="vscripting-gui-background" src="img/grid.jpg" style={{display: "none"}} />
                 <canvas id="vscripting-gui"></canvas>
             </div>
         );

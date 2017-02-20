@@ -25,16 +25,14 @@ export class EditVariablesDialog extends Component {
 
     removeVariable(e, name) {
         let vars = this.state.variables;
-        if (vars.length > 1) {
-            let i = 0;
-            while (i < vars.length && vars[i] !== name) {
-                i++;
-            }
-            vars.splice(i, 1);
-            this.setState({
-                variables: vars
-            });
+        let i = 0;
+        while (i < vars.length && vars[i] !== name) {
+            i++;
         }
+        vars.splice(i, 1);
+        this.setState({
+            variables: vars
+        });
     }
 
     componentWillMount() {
@@ -94,7 +92,7 @@ export class EditVariablesDialog extends Component {
                         {variables}
                     </div>
                     <div className="pt-dialog-footer">
-                        <Button type="button" className="pt-button pt-icon-add" style={{ float: 'left' }} onClick={() => this.addVariable()}>Add variable</Button>
+                        <Button type="button" className="pt-button pt-icon-add pt-intent-primary" style={{ float: 'left' }} onClick={() => this.addVariable()}>Add variable</Button>
                         <div className="pt-dialog-footer-actions">
                             <Button text="Save" onClick={() => this.saveChanges()}/>
                             <Button intent={Intent.DANGER} onClick={() => this.toggleDialog()} text="Cancel"/>

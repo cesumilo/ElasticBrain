@@ -12,7 +12,7 @@ var UIGraphics = require('./../UIGraphics');
 var UIStyles = require('./../UIStyles');
 var UIEvents = require('./../UIEvents');
 
-export class UIBlockMagnet {
+export class UIBlockFlow {
 
     constructor(parent, name = UIStyles.UIBlockMagnetDefaultName, input = false, color=UIStyles.UIBlockMagnetInputFillColor) {
         this._name = name;
@@ -121,19 +121,19 @@ export class UIBlockMagnet {
             link.attachFrom(this._pos.x + this._width / 2, this._pos.y + this._height / 2, this);
             link.attachTo(pos.x, pos.y, null);
             this.addEventListener("moveMagnet", (delta) => link.eventUpdateFrom(delta));
-            this._links.push(link);
-            link.setId(this._links.length - 1);
+            if (this._inputLink) {
+                this._inputLink.getObjectTo().removeLink(this._inputLink.getId());
+            }
             UIEvents.addState('currentLink', link);
+            this._inputLink = link;
             return true;
         } else if (this._type === "input" && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
             && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height && UIEvents.getState('currentLink')) {
             var currentLink = UIEvents.getState('currentLink');
             currentLink.attachTo(this._pos.x + this._width / 2, this._pos.y + this._height / 2, this);
             this.addEventListener("moveMagnet", (delta) => currentLink.eventUpdateTo(delta));
-            if (this._inputLink) {
-                this._inputLink.getObjectFrom().removeLink(this._inputLink.getId());
-            }
-            this._inputLink = currentLink;
+            this._links.push(currentLink);
+            currentLink.setId(this._links.length - 1);
             UIEvents.removeState('currentLink');
             return true;
         }
@@ -149,17 +149,17 @@ export class UIBlockMagnet {
     contextMenuModeHandler(e) {
         var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
 
-        if (this._type === "input" && this._inputLink && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
+        if (this._type === "output" && this._inputLink && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
             && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height) {
-            UIEvents.addState('custom-context-menu', <UIBlockMagnetContextMenu isEditing={this._inputLink.isInEditMode()} onEdit={() => this.contextMenuModeOnEditAndSave()} onSave={() => this.contextMenuModeOnEditAndSave()} onCut={() => this._inputLink.getObjectFrom().removeLink(this._inputLink.getId())} />);
+            UIEvents.addState('custom-context-menu', <UIBlockMagnetContextMenu isEditing={this._inputLink.isInEditMode()} onEdit={() => this.contextMenuModeOnEditAndSave()} onSave={() => this.contextMenuModeOnEditAndSave()} onCut={() => this._inputLink.getObjectTo().removeLink(this._inputLink.getId())} />);
             return true;
         }
         return false;
     }
 
     draw() {
-        for (var i = 0; i < this._links.length; i++) {
-            this._links[i].draw();
+        if (this._inputLink) {
+            this._inputLink.draw();
         }
         this._ctx.fillStyle = this._color;
         this._ctx.fillRect(this._pos.x, this._pos.y, this._width, this._height);

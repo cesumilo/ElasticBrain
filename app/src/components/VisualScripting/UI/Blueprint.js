@@ -21,7 +21,7 @@ export class Blueprint {
                 "Blueprint Inputs Edit",
                 "outputs", {
                 outputs: this._inputs
-            }));
+            }), false, true);
         }
 
         this.addBlock(new BlueprintBlock("Blueprint Outputs",
@@ -29,7 +29,7 @@ export class Blueprint {
             "Blueprint Outputs Edit",
             "inputs", {
             inputs: this._outputs
-        }));
+        }), true, false);
     }
 
     getName() {
@@ -43,12 +43,13 @@ export class Blueprint {
         };
     }
 
-    addBlock(block) {
+    addBlock(block, input=true, output=true) {
         if (typeof block.draw !== "function") {
             return -1;
         }
         block.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());
         block.generateMagnets();
+        block.generateFlowMagnets(input, output, "#9575CD");
         this._blocks.push(block);
         return this._blocks.length - 1;
     }

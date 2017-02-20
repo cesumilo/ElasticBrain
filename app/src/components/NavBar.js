@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 export class NavBar extends Component {
     render() {
         return (
-            <nav className="pt-navbar pt-dark .modifier">
+            <nav className="pt-navbar pt-dark" style={{backgroundColor: "#01579B"}}>
                 <div className="pt-navbar-group pt-align-left">
                     <div className="pt-navbar-heading">ElasticBrain</div>
                 </div>

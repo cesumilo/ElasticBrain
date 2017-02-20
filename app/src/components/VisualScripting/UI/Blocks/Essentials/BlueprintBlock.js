@@ -11,16 +11,19 @@ import { EditVariablesDialog } from './EditVariablesDialog';
 
 var UIEvents = require('../../UIEvents');
 var UIGraphics = require('../../UIGraphics');
+var UIStyles = require('../../UIStyles');
 
 export class BlueprintBlock extends UIBlock {
     constructor(name, type, property, menuTitle, data, options={}) {
         if (options.hasOwnProperty(property)) {
             delete options[property];
         }
-        super(name, options);
+        super(name, UIStyles.BlueprintBlockMagnetColor, UIStyles.BlueprintBlockFlowColor, options, "#FFFFFF");
         this._type = type;
         this._title = menuTitle;
         this._dataName = data;
+        this._uiBlockColor = UIStyles.BlueprintBlockColor;
+        this._uiBlockHeaderColor = UIStyles.BlueprintBlockHeaderColor;
         UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
     }
 
