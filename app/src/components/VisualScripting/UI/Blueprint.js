@@ -5,11 +5,13 @@
  */
 
 import { BlueprintBlock } from './Blocks/Essentials/BlueprintBlock';
+import { UIDrawable } from './UIDrawable';
 
-var UIEvents = require('./UIEvents');
+let UIEvents = require('./UIEvents');
 
-export class Blueprint {
+export class Blueprint extends UIDrawable {
     constructor(name, inputs=[], outputs=["output"]) {
+        super("blueprint");
         this._blocks = [];
         this._name = name;
         this._outputs = outputs;
@@ -46,7 +48,7 @@ export class Blueprint {
     }
 
     addBlock(block, input=true, output=true) {
-        if (typeof block.draw !== "function") {
+        if (!(block instanceof UIDrawable)) {
             return -1;
         }
         block.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">VisualScripting/UI/Blocks/UIBlockMagnet.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blueprint.js~Blueprint.html">Blueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBackground.js~UIBackground.html">UIBackground</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBlueprint.js~UIBlueprint.html">UIBlueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIContextMenu.js~UIContextMenu.html">UIContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIDrawable.js~UIDrawable.html">UIDrawable</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIVisualScripting.js~UIVisualScripting.html">UIVisualScripting</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Flow.js~Flow.html">Flow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlock.js~UIBlock.html">UIBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockLink.js~UIBlockLink.html">UIBlockLink</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnet.js~UIBlockMagnet.html">UIBlockMagnet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnetContextMenu.js~UIBlockMagnetContextMenu.html">UIBlockMagnetContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Variable.js~Variable.html">Variable</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks/Essentials</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/BlueprintBlock.js~BlueprintBlock.html">BlueprintBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/EditContextMenu.js~EditContextMenu.html">EditContextMenu</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">VisualScripting/UI/Blocks/UIBlockMagnet.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+ * Created by Cesumilo on 21/02/2017.
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ */
+
+import React from &apos;react&apos;;
+import { UIBlockLink } from &apos;./UIBlockLink&apos;;
+import { UIBlockMagnetContextMenu } from &apos;./UIBlockMagnetContextMenu&apos;;
+import { UIDrawable } from &apos;../UIDrawable&apos;;
+
+let UIGraphics = require(&apos;./../UIGraphics&apos;);
+let UIStyles = require(&apos;./../UIStyles&apos;);
+let UIEvents = require(&apos;./../UIEvents&apos;);
+
+export class UIBlockMagnet extends UIDrawable {
+    constructor(parent, name = UIStyles.UIBlockMagnetDefaultName, input = false, color=UIStyles.UIBlockMagnetInputFillColor) {
+        super(input === false ? &quot;output&quot; : &quot;input&quot;);
+
+        this._name = name;
+        this._parent = parent;
+        this._links = [];
+        this._inputLink = null;
+        this._color = color;
+        this._width = UIStyles.UIBlockMagnetDefaultWidth;
+        this._height = UIStyles.UIBlockMagnetDefaultHeight;
+
+        this.initEventListeners();
+        this.addHandlers(UIEvents.events.MOUSE_CLICK,
+            UIEvents.addEventListener(UIEvents.events.MOUSE_CLICK, (e) =&gt; this.mouseClickHandler(e)));
+        this.addHandlers(UIEvents.events.CONTEXT_MENU_MODE,
+            UIEvents.addEventListener(UIEvents.events.CONTEXT_MENU_MODE, (e) =&gt; this.contextMenuModeHandler(e)));
+    }
+
+    initEventListeners() {
+        this._handlers[UIEvents.events.MOVE_MAGNET] = [];
+    }
+
+    getName() {
+        return this._name;
+    }
+
+    getParent() {
+        return this._parent;
+    }
+
+    removeLink(id) {
+        if (id &gt;= this._links.length) {
+            return false;
+        }
+        this._links.splice(id, 1);
+        return true;
+    }
+
+    update(delta) {
+        this._pos = { x: this._pos.x + delta.x, y: this._pos.y + delta.y };
+        for (let i = 0; i &lt; this._handlers[UIEvents.events.MOVE_MAGNET].length; i++) {
+            this._handlers[UIEvents.events.MOVE_MAGNET][i](delta);
+        }
+    }
+
+    mouseClickHandler(e) {
+        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+
+        if (this._type === &quot;output&quot;
+            &amp;&amp; pos.x &gt;= this._pos.x - 10 &amp;&amp; pos.x &lt;= this._pos.x + this._width + 10
+            &amp;&amp; pos.y &gt;= this._pos.y - 10 &amp;&amp; pos.y &lt;= this._pos.y + this._height + 10
+            &amp;&amp; !UIEvents.getState(&apos;currentLink&apos;)) {
+
+            let link = new UIBlockLink();
+            link.setCanvas(this._canvas);
+            link.attachFrom(this._pos.x + this._width / 2, this._pos.y + this._height / 2, this);
+            link.attachTo(pos.x, pos.y, null);
+            this.addEventListener(UIEvents.events.MOVE_MAGNET, (delta) =&gt; link.eventUpdateFrom(delta));
+            this._links.push(link);
+            link.setId(this._links.length - 1);
+            UIEvents.addState(&apos;currentLink&apos;, link);
+            return true;
+
+        } else if (this._type === &quot;input&quot;
+            &amp;&amp; pos.x &gt;= this._pos.x - 10 &amp;&amp; pos.x &lt;= this._pos.x + this._width + 10
+            &amp;&amp; pos.y &gt;= this._pos.y - 10 &amp;&amp; pos.y &lt;= this._pos.y + this._height + 10
+            &amp;&amp; UIEvents.getState(&apos;currentLink&apos;)) {
+
+            let currentLink = UIEvents.getState(&apos;currentLink&apos;);
+            currentLink.attachTo(this._pos.x + this._width / 2, this._pos.y + this._height / 2, this);
+            this.addEventListener(UIEvents.events.MOVE_MAGNET, (delta) =&gt; currentLink.eventUpdateTo(delta));
+            if (this._inputLink) {
+                this._inputLink.getObjectFrom().removeLink(this._inputLink.getId());
+            }
+            this._inputLink = currentLink;
+            UIEvents.removeState(&apos;currentLink&apos;);
+            return true;
+        }
+        return false;
+    }
+
+    contextMenuModeOnEditAndSave() {
+        if (this._inputLink) {
+            this._inputLink.toggleEditMode();
+        }
+    }
+
+    contextMenuModeHandler(e) {
+        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+
+        if (this._type === &quot;input&quot;
+            &amp;&amp; this._inputLink &amp;&amp; pos.x &gt;= this._pos.x - 5 &amp;&amp; pos.x &lt;= this._pos.x + this._width + 5
+            &amp;&amp; pos.y &gt;= this._pos.y - 5 &amp;&amp; pos.y &lt;= this._pos.y + this._height + 5) {
+
+            UIEvents.addState(UIEvents.states.CUSTOM_CONTEXT_MENU,
+                &lt;UIBlockMagnetContextMenu
+                    isEditing={this._inputLink.isInEditMode()}
+                    onEdit={() =&gt; this.contextMenuModeOnEditAndSave()}
+                    onSave={() =&gt; this.contextMenuModeOnEditAndSave()}
+                    onCut={() =&gt; this._inputLink.getObjectFrom().removeLink(this._inputLink.getId())} /&gt;
+            );
+            return true;
+        }
+        return false;
+    }
+
+    draw() {
+        for (let i = 0; i &lt; this._links.length; i++) {
+            this._links[i].draw();
+        }
+        this._ctx.fillStyle = this._color;
+        this._ctx.fillRect(this._pos.x, this._pos.y, this._width, this._height);
+    }
+}</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.5.2)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

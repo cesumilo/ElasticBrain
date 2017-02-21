@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">VisualScripting/UI/UIVisualScripting.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blueprint.js~Blueprint.html">Blueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBackground.js~UIBackground.html">UIBackground</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBlueprint.js~UIBlueprint.html">UIBlueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIContextMenu.js~UIContextMenu.html">UIContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIDrawable.js~UIDrawable.html">UIDrawable</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIVisualScripting.js~UIVisualScripting.html">UIVisualScripting</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Flow.js~Flow.html">Flow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlock.js~UIBlock.html">UIBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockLink.js~UIBlockLink.html">UIBlockLink</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnet.js~UIBlockMagnet.html">UIBlockMagnet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnetContextMenu.js~UIBlockMagnetContextMenu.html">UIBlockMagnetContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Variable.js~Variable.html">Variable</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks/Essentials</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/BlueprintBlock.js~BlueprintBlock.html">BlueprintBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/EditContextMenu.js~EditContextMenu.html">EditContextMenu</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">VisualScripting/UI/UIVisualScripting.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+ * Created by Cesumilo on 06/02/2017.
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ */
+
+import React, { Component } from &apos;react&apos;;
+import classNames from &apos;classnames&apos;;
+import { ContextMenu } from &quot;@blueprintjs/core&quot;;
+import { UIContextMenu } from &apos;./UIContextMenu&apos;;
+import { UIBlock } from &apos;./Blocks/UIBlock&apos;;
+import { Blueprint } from &apos;./Blueprint&apos;;
+import { UIBlueprint } from &apos;./UIBlueprint&apos;;
+import { UIBackground } from &apos;./UIBackground&apos;;
+import &apos;../../../../public/css/VScriptingGUI.css&apos;;
+
+let UIGraphics = require(&apos;./UIGraphics&apos;);
+let UIEvents = require(&apos;./UIEvents&apos;);
+
+/**
+ * Describe the UI class for Visual Scripting.
+ */
+export class UIVisualScripting extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this._background =  new UIBackground();
+        this._handlers = {};
+        this._guiObjects = [];
+
+        this.state = {
+            canvas: null,
+            ctx: null,
+            oldMousePosition: { x: 0, y: 0 },
+            willClickDrop: false,
+            isClickDrop: false,
+            isContextMenuOpen: false
+        };
+
+        this.initHandlers();
+        UIEvents.setVisualScriptingUI(this);
+    }
+
+    initHandlers() {
+        this._handlers[UIEvents.events.MOUSE_CLICK] = [];
+        this._handlers[UIEvents.events.MOUSE_MOVE] = [];
+        this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP] = [];
+        this._handlers[UIEvents.events.END_CLICK_AND_DROP] = [];
+        this._handlers[UIEvents.events.FOLLOW_MOUSE] = [];
+        this._handlers[UIEvents.events.CONTEXT_MENU_MODE] = [];
+    }
+
+    getCanvas() {
+        return this.state.canvas;
+    }
+
+    componentDidMount() {
+        this.setState({
+            canvas: document.getElementById(&apos;vscripting-gui&apos;)
+        }, function() {
+            this._background.setCanvas(this.state.canvas);
+
+            // TODO: Revoir comment adapter la taille du canvas &#xE0; l&apos;&#xE9;cran
+            this.state.canvas.setAttribute(&quot;width&quot;, document.body.clientWidth);
+            this.state.canvas.setAttribute(&quot;height&quot;, document.body.clientHeight * 0.938);
+
+            this.state.canvas.addEventListener(&quot;mousedown&quot;, (e) =&gt; this.mouseDownHandler(e));
+            this.state.canvas.addEventListener(&quot;mousemove&quot;, (e) =&gt; this.mouseMoveHandler(e));
+            this.state.canvas.addEventListener(&quot;mouseup&quot;, (e) =&gt; this.mouseUpHandler(e));
+
+            /* TESTING ZONE */
+            var blueprint = new Blueprint(&quot;blueprint&quot;, [&quot;position&quot;, &quot;scale&quot;], [&quot;position&quot;]);
+            blueprint.addBlock(new UIBlock(&quot;test&quot;, &quot;#B71C1C&quot;, &quot;#000000&quot;, {
+                inputs: [&quot;a&quot;],
+                outputs: [&quot;b&quot;]
+            }, &quot;#000000&quot;));
+            var ui = new UIBlueprint(blueprint);
+            ui.setCanvas(this.state.canvas);
+            this.addDrawableObject(blueprint);
+            /* END OF TESTING ZONE */
+
+            this.setState({
+                ctx: this.state.canvas.getContext(&apos;2d&apos;)
+            });
+        });
+    }
+
+    componentDidUpdate() {
+        if (this.state.ctx) {
+            this.state.canvas.width = this.state.canvas.width;
+            this._background.draw();
+            for (let i = 0; i &lt; this._guiObjects.length; i++) {
+                this._guiObjects[i].draw();
+            }
+        }
+    }
+
+    addDrawableObject(object) {
+        if (typeof object.draw === &quot;function&quot;) {
+            this._guiObjects.push(object);
+        }
+    }
+
+    mouseDownHandler(e) {
+        let i = 0;
+
+        if (e.button === UIEvents.getButton(&quot;mouseRightButton&quot;)) {
+            while (i &lt; this._handlers[UIEvents.events.CONTEXT_MENU_MODE].length &amp;&amp; !this._handlers[UIEvents.events.CONTEXT_MENU_MODE][i](e)) {
+                i++;
+            }
+            if (i &gt;= this._handlers[UIEvents.events.CONTEXT_MENU_MODE].length) {
+                UIEvents.removeState(UIEvents.states.CUSTOM_CONTEXT_MENU);
+            }
+        }
+
+        if (e.button !== UIEvents.getButton(&quot;mouseRightButton&quot;)) {
+            this.setState({
+                willClickDrop: true
+            });
+        }
+    }
+
+    mouseUpHandler(e) {
+        let i = 0;
+
+        if (!this.state.isClickDrop) {
+            while (i &lt; this._handlers[UIEvents.events.MOUSE_CLICK].length &amp;&amp; !this._handlers[UIEvents.events.MOUSE_CLICK][i](e)) {
+                i++;
+            }
+        } else {
+            while (i &lt; this._handlers[UIEvents.events.END_CLICK_AND_DROP].length
+                    &amp;&amp; !this._handlers[UIEvents.events.END_CLICK_AND_DROP][i](e)) {
+                i++;
+            }
+        }
+
+        this.setState({
+            willClickDrop: false,
+            isClickDrop: false
+        });
+    }
+
+    mouseMoveHandler(e) {
+        const pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);
+        const newMousePos = {
+            x: pos.x - this.state.oldMousePosition.x,
+            y: pos.y - this.state.oldMousePosition.y
+        };
+        let i = 0;
+
+        if (this.state.willClickDrop &amp;&amp; !this.state.isClickDrop) {
+            this.setState({
+                isClickDrop: true
+            }, function() {
+                let j = 0;
+                while (j &lt; this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP].length
+                        &amp;&amp; !this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP][j](e)) {
+                    j++;
+                }
+            });
+        }
+
+        if (this.state.isClickDrop) {
+            i = 0;
+            while (i &lt; this._handlers[UIEvents.events.MOUSE_MOVE].length
+                    &amp;&amp; !this._handlers[UIEvents.events.MOUSE_MOVE][i](newMousePos)) {
+                i++;
+            }
+        }
+
+        i = 0;
+        while (i &lt; this._handlers[UIEvents.events.FOLLOW_MOUSE].length
+                &amp;&amp; !this._handlers[UIEvents.events.FOLLOW_MOUSE][i](newMousePos)) {
+            i++;
+        }
+
+        this.setState({ oldMousePosition: pos });
+    }
+
+    addEventListener(name, callback) {
+        if (!this._handlers.hasOwnProperty(name))
+            return -1;
+        this._handlers[name].push(callback);
+        return this._handlers[name].length;
+    }
+
+    removeEventListener(name, id) {
+        if (!this._handlers.hasOwnProperty(name) ||&#xA0;id &gt;= this._handlers[name].length)
+            return false;
+        this._handlers[name].splice(id, 1);
+        return true;
+    }
+
+    showContextMenu(e) {
+        e.preventDefault();
+        ContextMenu.show(&lt;UIContextMenu/&gt;, { left: e.clientX, top: e.clientY }, () =&gt; this.onContextMenuClose());
+        this.setState({ isContextMenuOpen: true });
+    }
+
+    onContextMenuClose() {
+        this.setState({ isContextMenuOpen: false });
+    }
+
+    render() {
+        const classes = classNames(&quot;context-menu-node&quot;, { &quot;context-menu-open&quot;: this.state.isContextMenuOpen });
+        const contents = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).map(function(content, i){
+            return React.cloneElement(content, { key: &apos;content_&apos; + i });
+        });
+
+        return (
+            &lt;div className={classes} onContextMenu={(e) =&gt; this.showContextMenu(e)}&gt;
+                {contents}
+                &lt;img id=&quot;vscripting-gui-background&quot; src=&quot;img/grid.jpg&quot; style={{display: &quot;none&quot;}} alt=&quot;background&quot; /&gt;
+                &lt;canvas id=&quot;vscripting-gui&quot;&gt;&lt;/canvas&gt;
+            &lt;/div&gt;
+        );
+    }
+}</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.5.2)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

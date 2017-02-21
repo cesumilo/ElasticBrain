@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../../">
+  <title data-ice="title">VisualScripting/UI/Blocks/Essentials/BlueprintBlock.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blueprint.js~Blueprint.html">Blueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBackground.js~UIBackground.html">UIBackground</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBlueprint.js~UIBlueprint.html">UIBlueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIContextMenu.js~UIContextMenu.html">UIContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIDrawable.js~UIDrawable.html">UIDrawable</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIVisualScripting.js~UIVisualScripting.html">UIVisualScripting</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Flow.js~Flow.html">Flow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlock.js~UIBlock.html">UIBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockLink.js~UIBlockLink.html">UIBlockLink</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnet.js~UIBlockMagnet.html">UIBlockMagnet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnetContextMenu.js~UIBlockMagnetContextMenu.html">UIBlockMagnetContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Variable.js~Variable.html">Variable</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks/Essentials</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/BlueprintBlock.js~BlueprintBlock.html">BlueprintBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/EditContextMenu.js~EditContextMenu.html">EditContextMenu</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">VisualScripting/UI/Blocks/Essentials/BlueprintBlock.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+ * Created by Cesumilo on 12/02/2017.
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ */
+
+import React from &apos;react&apos;;
+import { UIBlock } from &apos;../UIBlock&apos;;
+import { EditContextMenu } from &apos;./EditContextMenu&apos;;
+import { EditVariablesDialog } from &apos;./EditVariablesDialog&apos;;
+
+var UIEvents = require(&apos;../../UIEvents&apos;);
+var UIGraphics = require(&apos;../../UIGraphics&apos;);
+var UIStyles = require(&apos;../../UIStyles&apos;);
+
+export class BlueprintBlock extends UIBlock {
+    constructor(name, type, property, menuTitle, data, options={}) {
+        if (options.hasOwnProperty(property)) {
+            delete options[property];
+        }
+        super(name, UIStyles.BlueprintBlockMagnetColor, UIStyles.BlueprintBlockFlowColor, options, &quot;#FFFFFF&quot;);
+
+        this._type = type;
+        this._title = menuTitle;
+        this._dataName = data;
+        this._uiBlockColor = UIStyles.BlueprintBlockColor;
+        this._uiBlockHeaderColor = UIStyles.BlueprintBlockHeaderColor;
+        this._generatedFlowMagnets = options[&apos;flowBooleans&apos;];
+
+        this.addHandlers(UIEvents.events.CONTEXT_MENU_MODE,
+            UIEvents.addEventListener(UIEvents.events.CONTEXT_MENU_MODE, (e) =&gt; this.contextMenuModeHandler(e)));
+    }
+
+    handleEditCloseMenu() {
+        UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).splice(this._extraContentIndex, 1);
+        delete this._extraContentIndex;
+    }
+
+    saveChanges(options) {
+        this.generateVariables(options);
+        this.generateMagnets();
+        this.generateFlowMagnets(this._generatedFlowMagnets[0], this._generatedFlowMagnets[1]);
+        UIEvents.removeEventListener(UIEvents.events.CONTEXT_MENU_MODE, this._listeners[UIEvents.events.CONTEXT_MENU_MODE]);
+        delete this._listeners[UIEvents.events.CONTEXT_MENU_MODE];
+        this.addHandlers(UIEvents.events.CONTEXT_MENU_MODE,
+            UIEvents.addEventListener(UIEvents.events.CONTEXT_MENU_MODE, (e) =&gt; this.contextMenuModeHandler(e)));
+    }
+
+    onEditContextMenu() {
+        UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).push(&lt;EditVariablesDialog onClose={() =&gt; this.handleEditCloseMenu()}
+                                                                     save={(options) =&gt; this.saveChanges(options)}
+                                                                     inputs={this[&apos;_&apos; + this._dataName].map(function(output) {
+                                                                         return output.name;
+                                                                     })}
+                                                                     title={this._title}
+                                                                     data={this._dataName}
+        /&gt;);
+        this._extraContentIndex = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).length - 1;
+    }
+
+    contextMenuModeHandler(e) {
+        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+
+        if (pos.x &gt;= this._pos.x &amp;&amp; pos.x &lt;= this._pos.x + this._width
+            &amp;&amp; pos.y &gt;= this._pos.y &amp;&amp; pos.y &lt;= this._pos.y + this._height) {
+            UIEvents.addState(UIEvents.states.CUSTOM_CONTEXT_MENU, &lt;EditContextMenu onClick={() =&gt; this.onEditContextMenu()}/&gt;);
+            return true;
+        }
+        return false;
+    }
+}</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.5.2)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

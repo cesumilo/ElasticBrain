@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">VisualScripting/UI/Blocks/UIBlockLink.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blueprint.js~Blueprint.html">Blueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBackground.js~UIBackground.html">UIBackground</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBlueprint.js~UIBlueprint.html">UIBlueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIContextMenu.js~UIContextMenu.html">UIContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIDrawable.js~UIDrawable.html">UIDrawable</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIVisualScripting.js~UIVisualScripting.html">UIVisualScripting</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Flow.js~Flow.html">Flow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlock.js~UIBlock.html">UIBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockLink.js~UIBlockLink.html">UIBlockLink</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnet.js~UIBlockMagnet.html">UIBlockMagnet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnetContextMenu.js~UIBlockMagnetContextMenu.html">UIBlockMagnetContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Variable.js~Variable.html">Variable</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks/Essentials</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/BlueprintBlock.js~BlueprintBlock.html">BlueprintBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/EditContextMenu.js~EditContextMenu.html">EditContextMenu</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">VisualScripting/UI/Blocks/UIBlockLink.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+ * Created by Cesumilo on 06/02/2017.
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ */
+
+import { UIDrawable } from &apos;../UIDrawable&apos;;
+
+let UIGraphics = require(&apos;./../UIGraphics&apos;);
+let UIStyles = require(&apos;./../UIStyles&apos;);
+let UIEvents = require(&apos;./../UIEvents&apos;);
+
+export class UIBlockLink extends UIDrawable {
+
+    constructor(color=UIStyles.UIBlockLineDefaultColor) {
+        super(&quot;link&quot;);
+
+        this._id = 0;
+        this._strokeStyle = color;
+
+        this._objFrom = null;
+        this._objTo = null;
+        this._from = { x: 0, y: 0 };
+        this._to = { x: 0, y: 0 };
+
+        this._curvesPoints = [ { x: 0, y: 0 }, { x: 0, y: 0 } ];
+        this._curvesOffset = UIStyles.UIBlockLinkDefaultCurveOffset;
+        this._circleRadius = UIStyles.UIBlockLinkDefaultCircleRadius;
+
+        this._trackCurvePointOne = false;
+        this._trackCurvePointTwo = false;
+        this._trackMouse = false;
+        this._showEditCurve = true;
+
+        this.addHandlers(UIEvents.events.MOUSE_MOVE,
+            UIEvents.addEventListener(UIEvents.events.MOUSE_MOVE, (delta) =&gt; this.update(delta)));
+        this.addHandlers(UIEvents.events.BEGIN_CLICK_AND_DROP,
+            UIEvents.addEventListener(UIEvents.events.BEGIN_CLICK_AND_DROP, (e) =&gt; this.mouseBeginClickAndDrop(e)));
+        this.addHandlers(UIEvents.events.END_CLICK_AND_DROP,
+            UIEvents.addEventListener(UIEvents.events.END_CLICK_AND_DROP, (e) =&gt; this.mouseEndClickAndDrop(e)));
+        this.addHandlers(UIEvents.events.FOLLOW_MOUSE,
+            UIEvents.addEventListener(UIEvents.events.FOLLOW_MOUSE, (delta) =&gt; this.update(delta)));
+    }
+
+    setId(id) {
+        this._id = id;
+    }
+
+    getId() {
+        return this._id;
+    }
+
+    setContext(ctx) {
+        this._ctx = ctx;
+    }
+
+    setStrokeStyle(color) {
+        this._strokeStyle = color;
+    }
+
+    toggleEditMode() {
+        this._showEditCurve = !this._showEditCurve;
+    }
+
+    isInEditMode() {
+        return this._showEditCurve;
+    }
+
+    setColor(color) {
+        this._strokeStyle = color;
+    }
+
+    getObjectFrom() {
+        return this._objFrom;
+    }
+
+    getObjectTo() {
+        return this._objTo;
+    }
+
+    attachFrom(x, y, obj) {
+        this._from = { x: x, y: y };
+        this._curvesPoints[0].x = x + this._curvesOffset;
+        this._curvesPoints[0].y = y;
+        this._curvesPoints[1].x = x - this._curvesOffset;
+        this._curvesPoints[1].y = y;
+        this._objFrom = obj;
+        this._trackMouse = true;
+        this._showEditCurve = true;
+    }
+
+    attachTo(x, y, obj) {
+        this._to = { x: x, y: y };
+        this._curvesPoints[1].x = x - this._curvesOffset;
+        this._curvesPoints[1].y = y;
+
+        if (obj != null) {
+            this._objTo = obj;
+            UIEvents.removeEventListener(UIEvents.events.FOLLOW_MOUSE, this._listeners[UIEvents.events.FOLLOW_MOUSE]);
+            delete this._listeners[UIEvents.events.FOLLOW_MOUSE];
+            this._trackMouse = false;
+            this._showEditCurve = false;
+        }
+    }
+
+    eventUpdateFrom(delta) {
+        this._from = {
+            x: this._from.x + delta.x,
+            y: this._from.y + delta.y
+        };
+        this._curvesPoints[0] = {
+            x: this._curvesPoints[0].x + delta.x,
+            y: this._curvesPoints[0].y + delta.y
+        };
+    }
+
+    eventUpdateTo(delta) {
+        this._to = {
+            x: this._to.x + delta.x,
+            y: this._to.y + delta.y
+        };
+        this._curvesPoints[1] = {
+            x: this._curvesPoints[1].x + delta.x,
+            y: this._curvesPoints[1].y + delta.y
+        };
+    }
+
+    eventUpdateCurvePointOne(delta) {
+        this._curvesPoints[0] = {
+            x: this._curvesPoints[0].x + delta.x,
+            y: this._curvesPoints[0].y + delta.y
+        };
+    }
+
+    eventUpdateCurvePointTwo(delta) {
+        this._curvesPoints[1] = {
+            x: this._curvesPoints[1].x + delta.x,
+            y: this._curvesPoints[1].y + delta.y
+        };
+    }
+
+    mouseBeginClickAndDrop(e) {
+        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+
+        if (UIGraphics.euclidianDist(this._curvesPoints[0].x, this._curvesPoints[0].y, pos.x, pos.y) &lt; this._circleRadius) {
+            this._trackCurvePointOne = true;
+        } else if (UIGraphics.euclidianDist(pos.x, pos.y, this._curvesPoints[1].x, this._curvesPoints[1].y) &lt; this._circleRadius) {
+            this._trackCurvePointTwo = true;
+        }
+    }
+
+    mouseEndClickAndDrop(e) {
+        this._trackCurvePointOne = false;
+        this._trackCurvePointTwo = false;
+    }
+
+    update(delta) {
+        if (this._trackMouse) {
+            this.eventUpdateTo(delta);
+        }
+
+        if (this._trackCurvePointOne) {
+            this.eventUpdateCurvePointOne(delta);
+        }
+
+        if (this._trackCurvePointTwo) {
+            this.eventUpdateCurvePointTwo(delta);
+        }
+    }
+
+    draw() {
+        if (this._showEditCurve) {
+            this._ctx.fillStyle = UIStyles.UIBlockLinkCircleFillColor;
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkCircleStrokeColor;
+            UIGraphics.drawCircle(this._ctx, this._from.x, this._from.y, this._circleRadius);
+            UIGraphics.drawCircle(this._ctx, this._curvesPoints[0].x, this._curvesPoints[0].y, this._circleRadius);
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkLineStrokeColor;
+            UIGraphics.drawLine(this._ctx, this._from.x, this._from.y, this._curvesPoints[0].x, this._curvesPoints[0].y);
+            this._ctx.fillStyle = UIStyles.UIBlockLinkCircleFillColor;
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkCircleStrokeColor;
+            UIGraphics.drawCircle(this._ctx, this._to.x, this._to.y, this._circleRadius);
+            UIGraphics.drawCircle(this._ctx, this._curvesPoints[1].x, this._curvesPoints[1].y, this._circleRadius);
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkLineStrokeColor;
+            UIGraphics.drawLine(this._ctx, this._to.x, this._to.y, this._curvesPoints[1].x, this._curvesPoints[1].y);
+        }
+
+        if (this._strokeStyle == null) {
+            this._ctx.strokeStyle = UIStyles.UIBlockLinkBezierCurveStrokeColor;
+        } else {
+            this._ctx.strokeStyle = this._strokeStyle;
+        }
+
+        UIGraphics.drawBezierCurve(this._ctx,
+            this._from.x, this._from.y,
+            this._curvesPoints[0].x, this._curvesPoints[0].y,
+            this._curvesPoints[1].x, this._curvesPoints[1].y,
+            this._to.x, this._to.y);
+    }
+}</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.5.2)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

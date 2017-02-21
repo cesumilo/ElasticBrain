@@ -12,13 +12,21 @@ import { UIBlock } from './Blocks/UIBlock';
 import { Blueprint } from './Blueprint';
 import { UIBlueprint } from './UIBlueprint';
 import { UIBackground } from './UIBackground';
+import { UIDrawable } from './UIDrawable';
 import '../../../../public/css/VScriptingGUI.css';
 
 let UIGraphics = require('./UIGraphics');
 let UIEvents = require('./UIEvents');
 
+/**
+ * Describe the UI class for Visual Scripting.
+ */
 export class UIVisualScripting extends Component {
 
+    /**
+     * Construct the UI interface of the Visual Scripting canvas, and set the component's states.
+     * @param {object} props Contains the properties of the JSX element.
+     */
     constructor(props) {
         super(props);
 
@@ -39,6 +47,9 @@ export class UIVisualScripting extends Component {
         UIEvents.setVisualScriptingUI(this);
     }
 
+    /**
+     * Initialize all the handlers that support the UI.
+     */
     initHandlers() {
         this._handlers[UIEvents.events.MOUSE_CLICK] = [];
         this._handlers[UIEvents.events.MOUSE_MOVE] = [];
@@ -48,10 +59,17 @@ export class UIVisualScripting extends Component {
         this._handlers[UIEvents.events.CONTEXT_MENU_MODE] = [];
     }
 
+    /**
+     * Returns the actual canvas of the UI.
+     * @returns {object}
+     */
     getCanvas() {
         return this.state.canvas;
     }
 
+    /**
+     * Initialize all the UI dependencies.
+     */
     componentDidMount() {
         this.setState({
             canvas: document.getElementById('vscripting-gui')
@@ -83,6 +101,9 @@ export class UIVisualScripting extends Component {
         });
     }
 
+    /**
+     * Draw all the objects that are in the canvas.
+     */
     componentDidUpdate() {
         if (this.state.ctx) {
             this.state.canvas.width = this.state.canvas.width;
@@ -93,8 +114,12 @@ export class UIVisualScripting extends Component {
         }
     }
 
+    /**
+     * Allow to add new object in the canvas.
+     * @param {object} Contains the new object which will be draw on the canvas.
+     */
     addDrawableObject(object) {
-        if (typeof object.draw === "function") {
+        if (object instanceof UIDrawable) {
             this._guiObjects.push(object);
         }
     }

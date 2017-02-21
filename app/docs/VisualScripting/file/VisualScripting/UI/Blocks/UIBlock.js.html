@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">VisualScripting/UI/Blocks/UIBlock.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blueprint.js~Blueprint.html">Blueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBackground.js~UIBackground.html">UIBackground</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIBlueprint.js~UIBlueprint.html">UIBlueprint</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIContextMenu.js~UIContextMenu.html">UIContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIDrawable.js~UIDrawable.html">UIDrawable</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/UIVisualScripting.js~UIVisualScripting.html">UIVisualScripting</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Flow.js~Flow.html">Flow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlock.js~UIBlock.html">UIBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockLink.js~UIBlockLink.html">UIBlockLink</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnet.js~UIBlockMagnet.html">UIBlockMagnet</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/UIBlockMagnetContextMenu.js~UIBlockMagnetContextMenu.html">UIBlockMagnetContextMenu</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Variable.js~Variable.html">Variable</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">UI/Blocks/Essentials</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/BlueprintBlock.js~BlueprintBlock.html">BlueprintBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/VisualScripting/UI/Blocks/Essentials/EditContextMenu.js~EditContextMenu.html">EditContextMenu</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">VisualScripting/UI/Blocks/UIBlock.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+ * Created by Cesumilo on 06/02/2017.
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ */
+
+import { Variable } from &apos;./Variable&apos;;
+import { Flow } from &apos;./Flow&apos;;
+import { UIDrawable } from &apos;../UIDrawable&apos;;
+
+let UIGraphics = require(&apos;./../UIGraphics&apos;);
+let UIStyles = require(&apos;./../UIStyles&apos;);
+let UIEvents = require(&apos;./../UIEvents&apos;);
+
+export class UIBlock extends UIDrawable {
+
+    constructor(name, magnetColor, flowColor, options = {}, textColor=UIStyles.UIBlockDefaultTextColor) {
+        super(&quot;default&quot;);
+
+        this._name = name;
+
+        this._trackMouse = false;
+        this._drawables = [];
+        this._inputs = [];
+        this._outputs = [];
+
+        this._uiBlockColor = UIStyles.UIBlockFillColor;
+        this._uiBlockHeaderColor = UIStyles.UIBlockHeaderColor;
+        this._magnetColor = magnetColor;
+        this._flowColor = flowColor;
+        this._textColor = textColor;
+
+        this.addHandlers(UIEvents.events.BEGIN_CLICK_AND_DROP,
+            UIEvents.addEventListener(UIEvents.events.BEGIN_CLICK_AND_DROP, (e) =&gt; this.mouseBeginClickAndDropHandler(e)));
+        this.addHandlers(UIEvents.events.END_CLICK_AND_DROP,
+            UIEvents.addEventListener(UIEvents.events.END_CLICK_AND_DROP, (e) =&gt; this.mouseEndClickAndDropHandler(e)));
+        this.addHandlers(UIEvents.events.MOUSE_MOVE,
+            UIEvents.addEventListener(UIEvents.events.MOUSE_MOVE, (e) =&gt; this.update(e)));
+
+        this.generateVariables(options);
+    }
+
+    initEventListeners() {
+        this._handlers[UIEvents.events.MOVE_BLOCK] = [];
+    }
+
+    generateVariables(options) {
+        this._inputs = [];
+        this._outputs = [];
+        this._handlers[UIEvents.events.MOVE_BLOCK] = [];
+
+        for (let i = 0; i &lt; this._drawables.length; i++) {
+            this._drawables[i].removeHandlers();
+        }
+        this._drawables = [];
+
+        if (options.hasOwnProperty(&apos;inputs&apos;)) {
+            for (let i = 0; i &lt; options[&apos;inputs&apos;].length; i++) {
+                !function(ref, length) {
+                    let input = new Variable(ref, options[&apos;inputs&apos;][i], true, ref._magnetColor);
+                    ref._drawables.push(input);
+                    ref._inputs.push({ index: length, obj: ref._drawables[length - 1], name: options[&apos;inputs&apos;][i] });
+                    ref._drawables[length - 1].setPosition(ref._pos.x - UIStyles.UIBlockMagnetDefaultWidth + (UIStyles.UIBlockMagnetDefaultWidth / 2),
+                        (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y
+                        + (i * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));
+                    ref.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) =&gt; ref._drawables[length - 1].update(delta));
+                }(this, this._drawables.length + 1);
+            }
+        }
+
+        if (options.hasOwnProperty(&apos;outputs&apos;)) {
+            for (let j = 0; j &lt; options[&apos;outputs&apos;].length; j++) {
+                !function (ref, length) {
+                    let output = new Variable(ref, options[&apos;outputs&apos;][j], false, ref._magnetColor);
+                    ref._drawables.push(output);
+                    ref._outputs.push({ index: length, obj: output, name: options[&apos;outputs&apos;][j] });
+                    ref._drawables[length - 1].setPosition(ref._pos.x + ref._width + 1,
+                        (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y
+                        + (j * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));
+                    ref.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) =&gt; ref._drawables[length - 1].update(delta));
+                }(this, this._drawables.length + 1);
+            }
+        }
+
+        const nbElements = (this._inputs.length &gt; this._outputs.length ? this._inputs.length : this._outputs.length);
+        this._height = (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset)
+            + ((UIStyles.UIBlockDefaultUIBlockLinkOffset * nbElements)
+            + (UIStyles.UIBlockMagnetDefaultHeight * (nbElements + 1)));
+    }
+
+    generateFlowMagnets(input=true, output=true) {
+        if (input) {
+            let inputFlow = new Flow(this, &quot;&quot;, true, this._flowColor);
+            inputFlow.setPosition(this._pos.x - inputFlow.getSize().width + (UIStyles.UIBlockMagnetDefaultWidth / 2),
+                this._pos.y + ((UIStyles.UIBlockDefaultHeaderHeight - inputFlow.getSize().height) / 2));
+            inputFlow.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());
+            this._drawables.push(inputFlow);
+            this.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) =&gt; inputFlow.update(delta));
+        }
+
+        if (output) {
+            let outputFlow = new Flow(this, &quot;&quot;, false, this._flowColor);
+            outputFlow.setPosition(this._pos.x + this._width - (UIStyles.UIBlockMagnetDefaultWidth / 2),
+                this._pos.y + ((UIStyles.UIBlockDefaultHeaderHeight - outputFlow.getSize().height) / 2));
+            outputFlow.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());
+            this._drawables.push(outputFlow);
+            this.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) =&gt; outputFlow.update(delta));
+        }
+    }
+
+    generateMagnets() {
+        this._ctx.font = UIStyles.UIBlockDefaultFont;
+        const titleWidth = this._ctx.measureText(this._name).width + (UIStyles.UIBlockDefaultTextOffset * 2);
+        const length = (this._inputs.length &gt; this._outputs.length ? this._outputs.length : this._inputs.length);
+        let maxVariablesWidth = 0;
+
+        for (let j = 0; j &lt; length; j++) {
+            const inputWidth = this._ctx.measureText(this._inputs[j].obj.getName()).width;
+            const outputWidth = this._ctx.measureText(this._outputs[j].obj.getName()).width;
+            const totalWidth = (UIStyles.UIBlockDefaultTextOffset * 2) + UIStyles.UIBlockDefaultCorpusOffset
+                + inputWidth + outputWidth;
+            if (totalWidth &gt; maxVariablesWidth) {
+                maxVariablesWidth = totalWidth;
+            }
+        }
+        this._width = (maxVariablesWidth &gt; titleWidth ? maxVariablesWidth : titleWidth);
+
+        for(let t = 0; t &lt; this._outputs.length; t++) {
+            this._outputs[t].obj.setPosition(this._pos.x + this._width - (UIStyles.UIBlockMagnetDefaultWidth / 2), this._outputs[t].obj.getPosition().y);
+        }
+
+        for (let i = 0; i &lt; this._drawables.length; i++) {
+            this._drawables[i].setCanvas(this._canvas);
+        }
+    }
+
+    mouseBeginClickAndDropHandler(e) {
+        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+        this._trackMouse = (pos.x &gt;= this._pos.x &amp;&amp; pos.x &lt;= this._pos.x + this._width
+            &amp;&amp; pos.y &gt;= this._pos.y &amp;&amp; pos.y &lt;= this._pos.y + this._height);
+        return this._trackMouse;
+    }
+
+    mouseEndClickAndDropHandler(e) {
+        this._trackMouse = false;
+    }
+
+    update(delta) {
+        if (this._trackMouse) {
+            for (let m = 0; m &lt; this._handlers[UIEvents.events.MOVE_BLOCK].length; m++) {
+                this._handlers[UIEvents.events.MOVE_BLOCK][m](delta);
+            }
+            this._pos = { x: this._pos.x + delta.x, y: this._pos.y + delta.y };
+        }
+        return this._trackMouse;
+    }
+
+    draw() {
+        this._ctx.fillStyle = this._uiBlockColor;
+        this._ctx.shadowBlur = UIStyles.UIBlockShadowBlur;
+        this._ctx.shadowColor = UIStyles.UIBlockShadowColor;
+        UIGraphics.drawRoundedRect(this._ctx, this._pos.x, this._pos.y, this._width, this._height, 8, true, false);
+        this._ctx.shadowBlur = 0;
+
+        this._ctx.fillStyle = this._uiBlockHeaderColor;
+        UIGraphics.drawUpperRoundedRect(this._ctx, this._pos.x, this._pos.y, this._width,
+            UIStyles.UIBlockDefaultHeaderHeight, UIStyles.UIBlockDefaultRadius, true, false);
+
+        this._ctx.fillStyle = this._textColor;
+        for (let i = 0; i &lt; this._inputs.length; i++) {
+            this._ctx.font = UIStyles.UIBlockDefaultFont;
+            this._ctx.fillText(this._inputs[i].obj.getName(), this._pos.x + UIStyles.UIBlockDefaultTextOffset,
+                this._inputs[i].obj.getPosition().y
+                + (UIGraphics.getTextHeight(this._inputs[i].obj.getName(), UIStyles.UIBlockDefaultFont).height / 1.7));
+        }
+
+        for (let j = 0; j &lt; this._outputs.length; j++) {
+            this._ctx.font = UIStyles.UIBlockDefaultFont;
+            this._ctx.fillText(this._outputs[j].obj.getName(),
+                this._outputs[j].obj.getPosition().x - UIStyles.UIBlockDefaultTextOffset
+                - this._ctx.measureText(this._outputs[j].obj.getName()).width,
+                this._outputs[j].obj.getPosition().y
+                + (UIGraphics.getTextHeight(this._outputs[j].obj.getName(), UIStyles.UIBlockDefaultFont).height / 1.7));
+        }
+
+        const textHeight = UIGraphics.getTextHeight(this._name, UIStyles.UIBlockDefaultFont).height;
+        this._ctx.font = UIStyles.UIBlockDefaultFont;
+        this._ctx.fillText(this._name, this._pos.x
+            + ((this._width - this._ctx.measureText(this._name).width) / 2),
+            this._pos.y + (textHeight + ((UIStyles.UIBlockDefaultHeaderHeight - textHeight) / 2.8)));
+
+        for (let n = 0; n &lt; this._drawables.length; n++) {
+            this._drawables[n].draw();
+        }
+    }
+}</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.5.2)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

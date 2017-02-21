@@ -1,0 +1,196 @@
+{
+  "coverage": "1.86%",
+  "expectCount": 107,
+  "actualCount": 2,
+  "files": {
+    "VisualScripting/UI/Blueprint.js": {
+      "expectCount": 8,
+      "actualCount": 0,
+      "undocumentLines": [
+        11,
+        48,
+        12,
+        67,
+        37,
+        41,
+        59,
+        63
+      ]
+    },
+    "VisualScripting/UI/Blocks/Essentials/BlueprintBlock.js": {
+      "expectCount": 6,
+      "actualCount": 0,
+      "undocumentLines": [
+        16,
+        17,
+        61,
+        34,
+        49,
+        39
+      ]
+    },
+    "VisualScripting/UI/Blocks/Essentials/EditContextMenu.js": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        9,
+        10
+      ]
+    },
+    "VisualScripting/UI/Blocks/Flow.js": {
+      "expectCount": 6,
+      "actualCount": 0,
+      "undocumentLines": [
+        16,
+        18,
+        64,
+        83,
+        22,
+        58
+      ]
+    },
+    "VisualScripting/UI/UIBackground.js": {
+      "expectCount": 4,
+      "actualCount": 1,
+      "undocumentLines": [
+        9,
+        19,
+        14
+      ]
+    },
+    "VisualScripting/UI/Blocks/UIBlock.js": {
+      "expectCount": 10,
+      "actualCount": 0,
+      "undocumentLines": [
+        15,
+        17,
+        158,
+        91,
+        111,
+        47,
+        43,
+        137,
+        144,
+        148
+      ]
+    },
+    "VisualScripting/UI/Blocks/UIBlockLink.js": {
+      "expectCount": 21,
+      "actualCount": 0,
+      "undocumentLines": [
+        13,
+        81,
+        92,
+        15,
+        171,
+        128,
+        135,
+        106,
+        117,
+        49,
+        73,
+        77,
+        65,
+        142,
+        152,
+        69,
+        53,
+        45,
+        57,
+        61,
+        157
+      ]
+    },
+    "VisualScripting/UI/Blocks/UIBlockMagnet.js": {
+      "expectCount": 11,
+      "actualCount": 0,
+      "undocumentLines": [
+        16,
+        17,
+        104,
+        98,
+        123,
+        39,
+        43,
+        35,
+        62,
+        47,
+        55
+      ]
+    },
+    "VisualScripting/UI/Blocks/UIBlockMagnetContextMenu.js": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        10,
+        11
+      ]
+    },
+    "VisualScripting/UI/UIBlueprint.js": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        11,
+        12
+      ]
+    },
+    "VisualScripting/UI/UIContextMenu.js": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        12,
+        13
+      ]
+    },
+    "VisualScripting/UI/UIDrawable.js": {
+      "expectCount": 15,
+      "actualCount": 0,
+      "undocumentLines": [
+        9,
+        26,
+        41,
+        11,
+        79,
+        69,
+        73,
+        24,
+        34,
+        45,
+        51,
+        56,
+        60,
+        64,
+        77
+      ]
+    },
+    "VisualScripting/UI/UIVisualScripting.js": {
+      "expectCount": 16,
+      "actualCount": 1,
+      "undocumentLines": [
+        99,
+        181,
+        58,
+        89,
+        25,
+        54,
+        45,
+        105,
+        144,
+        124,
+        201,
+        188,
+        205,
+        195,
+        32
+      ]
+    },
+    "VisualScripting/UI/Blocks/Variable.js": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        11,
+        12
+      ]
+    }
+  }
+}
