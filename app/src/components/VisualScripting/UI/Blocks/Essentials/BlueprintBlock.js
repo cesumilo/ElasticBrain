@@ -19,6 +19,7 @@ export class BlueprintBlock extends UIBlock {
             delete options[property];
         }
         super(name, UIStyles.BlueprintBlockMagnetColor, UIStyles.BlueprintBlockFlowColor, options, "#FFFFFF");
+
         this._type = type;
         this._title = menuTitle;
         this._dataName = data;
@@ -26,11 +27,12 @@ export class BlueprintBlock extends UIBlock {
         this._uiBlockHeaderColor = UIStyles.BlueprintBlockHeaderColor;
         this._generatedFlowMagnets = options['flowBooleans'];
 
-        this._contextMenuId = UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
+        this.addHandlers(UIEvents.events.CONTEXT_MENU_MODE,
+            UIEvents.addEventListener(UIEvents.events.CONTEXT_MENU_MODE, (e) => this.contextMenuModeHandler(e)));
     }
 
     handleEditCloseMenu() {
-        UIEvents.getState('extraContents').splice(this._extraContentIndex, 1);
+        UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).splice(this._extraContentIndex, 1);
         delete this._extraContentIndex;
     }
 
@@ -38,12 +40,14 @@ export class BlueprintBlock extends UIBlock {
         this.generateVariables(options);
         this.generateMagnets();
         this.generateFlowMagnets(this._generatedFlowMagnets[0], this._generatedFlowMagnets[1]);
-        UIEvents.removeEventListener("contextMenuMode", this._contextMenuId);
-        this._contextMenuId = UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
+        UIEvents.removeEventListener(UIEvents.events.CONTEXT_MENU_MODE, this._listeners[UIEvents.events.CONTEXT_MENU_MODE]);
+        delete this._listeners[UIEvents.events.CONTEXT_MENU_MODE];
+        this.addHandlers(UIEvents.events.CONTEXT_MENU_MODE,
+            UIEvents.addEventListener(UIEvents.events.CONTEXT_MENU_MODE, (e) => this.contextMenuModeHandler(e)));
     }
 
     onEditContextMenu() {
-        UIEvents.getState('extraContents').push(<EditVariablesDialog onClose={() => this.handleEditCloseMenu()}
+        UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).push(<EditVariablesDialog onClose={() => this.handleEditCloseMenu()}
                                                                      save={(options) => this.saveChanges(options)}
                                                                      inputs={this['_' + this._dataName].map(function(output) {
                                                                          return output.name;
@@ -51,15 +55,15 @@ export class BlueprintBlock extends UIBlock {
                                                                      title={this._title}
                                                                      data={this._dataName}
         />);
-        this._extraContentIndex = UIEvents.getState('extraContents').length - 1;
+        this._extraContentIndex = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).length - 1;
     }
 
     contextMenuModeHandler(e) {
-        var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
 
         if (pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
             && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height) {
-            UIEvents.addState('custom-context-menu', <EditContextMenu onClick={() => this.onEditContextMenu()}/>);
+            UIEvents.addState(UIEvents.states.CUSTOM_CONTEXT_MENU, <EditContextMenu onClick={() => this.onEditContextMenu()}/>);
             return true;
         }
         return false;

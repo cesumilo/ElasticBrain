@@ -14,17 +14,17 @@ import { UIBlueprint } from './UIBlueprint';
 import { UIBackground } from './UIBackground';
 import '../../../../public/css/VScriptingGUI.css';
 
-var UIGraphics = require('./UIGraphics');
-var UIEvents = require('./UIEvents');
+let UIGraphics = require('./UIGraphics');
+let UIEvents = require('./UIEvents');
 
 export class UIVisualScripting extends Component {
 
     constructor(props) {
         super(props);
 
-        this.background =  new UIBackground();
-        this.handlers = {};
-        this.guiObjects = [];
+        this._background =  new UIBackground();
+        this._handlers = {};
+        this._guiObjects = [];
 
         this.state = {
             canvas: null,
@@ -40,12 +40,12 @@ export class UIVisualScripting extends Component {
     }
 
     initHandlers() {
-        this.handlers[UIEvents.events.MOUSE_CLICK] = [];
-        this.handlers[UIEvents.events.MOUSE_MOVE] = [];
-        this.handlers[UIEvents.events.BEGIN_CLICK_AND_DROP] = [];
-        this.handlers[UIEvents.events.END_CLICK_AND_DROP] = [];
-        this.handlers[UIEvents.events.FOLLOW_MOUSE] = [];
-        this.handlers[UIEvents.events.CONTEXT_MENU_MODE] = [];
+        this._handlers[UIEvents.events.MOUSE_CLICK] = [];
+        this._handlers[UIEvents.events.MOUSE_MOVE] = [];
+        this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP] = [];
+        this._handlers[UIEvents.events.END_CLICK_AND_DROP] = [];
+        this._handlers[UIEvents.events.FOLLOW_MOUSE] = [];
+        this._handlers[UIEvents.events.CONTEXT_MENU_MODE] = [];
     }
 
     getCanvas() {
@@ -56,7 +56,7 @@ export class UIVisualScripting extends Component {
         this.setState({
             canvas: document.getElementById('vscripting-gui')
         }, function() {
-            this.background.setCanvas(this.state.canvas);
+            this._background.setCanvas(this.state.canvas);
 
             // TODO: Revoir comment adapter la taille du canvas à l'écran
             this.state.canvas.setAttribute("width", document.body.clientWidth);
@@ -86,16 +86,16 @@ export class UIVisualScripting extends Component {
     componentDidUpdate() {
         if (this.state.ctx) {
             this.state.canvas.width = this.state.canvas.width;
-            this.background.draw();
-            for (let i = 0; i < this.guiObjects.length; i++) {
-                this.guiObjects[i].draw();
+            this._background.draw();
+            for (let i = 0; i < this._guiObjects.length; i++) {
+                this._guiObjects[i].draw();
             }
         }
     }
 
     addDrawableObject(object) {
         if (typeof object.draw === "function") {
-            this.guiObjects.push(object);
+            this._guiObjects.push(object);
         }
     }
 
@@ -103,10 +103,10 @@ export class UIVisualScripting extends Component {
         let i = 0;
 
         if (e.button === UIEvents.getButton("mouseRightButton")) {
-            while (i < this.handlers[UIEvents.events.CONTEXT_MENU_MODE].length && !this.handlers[UIEvents.events.CONTEXT_MENU_MODE][i](e)) {
+            while (i < this._handlers[UIEvents.events.CONTEXT_MENU_MODE].length && !this._handlers[UIEvents.events.CONTEXT_MENU_MODE][i](e)) {
                 i++;
             }
-            if (i >= this.handlers[UIEvents.events.CONTEXT_MENU_MODE].length) {
+            if (i >= this._handlers[UIEvents.events.CONTEXT_MENU_MODE].length) {
                 UIEvents.removeState(UIEvents.states.CUSTOM_CONTEXT_MENU);
             }
         }
@@ -122,12 +122,12 @@ export class UIVisualScripting extends Component {
         let i = 0;
 
         if (!this.state.isClickDrop) {
-            while (i < this.handlers[UIEvents.events.MOUSE_CLICK].length && !this.handlers[UIEvents.events.MOUSE_CLICK][i](e)) {
+            while (i < this._handlers[UIEvents.events.MOUSE_CLICK].length && !this._handlers[UIEvents.events.MOUSE_CLICK][i](e)) {
                 i++;
             }
         } else {
-            while (i < this.handlers[UIEvents.events.END_CLICK_AND_DROP].length
-                    && !this.handlers[UIEvents.events.END_CLICK_AND_DROP][i](e)) {
+            while (i < this._handlers[UIEvents.events.END_CLICK_AND_DROP].length
+                    && !this._handlers[UIEvents.events.END_CLICK_AND_DROP][i](e)) {
                 i++;
             }
         }
@@ -151,8 +151,8 @@ export class UIVisualScripting extends Component {
                 isClickDrop: true
             }, function() {
                 let j = 0;
-                while (j < this.handlers[UIEvents.events.BEGIN_CLICK_AND_DROP].length
-                        && !this.handlers[UIEvents.events.BEGIN_CLICK_AND_DROP][j](e)) {
+                while (j < this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP].length
+                        && !this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP][j](e)) {
                     j++;
                 }
             });
@@ -160,15 +160,15 @@ export class UIVisualScripting extends Component {
 
         if (this.state.isClickDrop) {
             i = 0;
-            while (i < this.handlers[UIEvents.events.MOUSE_MOVE].length
-                    && !this.handlers[UIEvents.events.MOUSE_MOVE][i](newMousePos)) {
+            while (i < this._handlers[UIEvents.events.MOUSE_MOVE].length
+                    && !this._handlers[UIEvents.events.MOUSE_MOVE][i](newMousePos)) {
                 i++;
             }
         }
 
         i = 0;
-        while (i < this.handlers[UIEvents.events.FOLLOW_MOUSE].length
-                && !this.handlers[UIEvents.events.FOLLOW_MOUSE][i](newMousePos)) {
+        while (i < this._handlers[UIEvents.events.FOLLOW_MOUSE].length
+                && !this._handlers[UIEvents.events.FOLLOW_MOUSE][i](newMousePos)) {
             i++;
         }
 
@@ -176,16 +176,16 @@ export class UIVisualScripting extends Component {
     }
 
     addEventListener(name, callback) {
-        if (!this.handlers.hasOwnProperty(name))
+        if (!this._handlers.hasOwnProperty(name))
             return -1;
-        this.handlers[name].push(callback);
-        return this.handlers[name].length;
+        this._handlers[name].push(callback);
+        return this._handlers[name].length;
     }
 
     removeEventListener(name, id) {
-        if (!this.handlers.hasOwnProperty(name) || id >= this.handlers[name].length)
+        if (!this._handlers.hasOwnProperty(name) || id >= this._handlers[name].length)
             return false;
-        this.handlers[name].splice(id, 1);
+        this._handlers[name].splice(id, 1);
         return true;
     }
 
@@ -208,7 +208,7 @@ export class UIVisualScripting extends Component {
         return (
             <div className={classes} onContextMenu={(e) => this.showContextMenu(e)}>
                 {contents}
-                <img id="vscripting-gui-background" src="img/grid.jpg" style={{display: "none"}} />
+                <img id="vscripting-gui-_background" src="img/grid.jpg" style={{display: "none"}} />
                 <canvas id="vscripting-gui"></canvas>
             </div>
         );

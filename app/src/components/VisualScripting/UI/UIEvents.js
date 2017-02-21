@@ -9,13 +9,16 @@ module.exports = {
     _states : {
         extraContents: []
     },
+
     events: {
         MOUSE_CLICK: "mouseClick",
         MOUSE_MOVE: "mouseMove",
         BEGIN_CLICK_AND_DROP: "mouseBeginClickAndDrop",
         END_CLICK_AND_DROP: "mouseEndClickAndDrop",
         FOLLOW_MOUSE: "mouseFollow",
-        CONTEXT_MENU_MODE: "contextMenuMode"
+        CONTEXT_MENU_MODE: "contextMenuMode",
+        MOVE_MAGNET: "moveMagnet",
+        MOVE_BLOCK: "moveBlock"
     },
     states: {
         CUSTOM_CONTEXT_MENU: "custom-context-menu",

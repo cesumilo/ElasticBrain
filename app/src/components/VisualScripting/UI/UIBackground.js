@@ -17,8 +17,8 @@ export class UIBackground {
     }
 
     draw() {
-        var img = document.getElementById("vscripting-gui-background");
-        var pat = this._ctx.createPattern(img, "repeat");
+        const img = document.getElementById("vscripting-gui-background");
+        const pat = this._ctx.createPattern(img, "repeat");
         this._ctx.rect(0, 0, this._canvas.width, this._canvas.height);
         this._ctx.fillStyle = pat;
         this._ctx.fill();

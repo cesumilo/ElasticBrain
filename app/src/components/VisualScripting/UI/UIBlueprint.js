@@ -6,7 +6,7 @@
 
 import { UIBlock } from './Blocks/UIBlock';
 
-var UIEvents = require('./UIEvents');
+let UIEvents = require('./UIEvents');
 
 export class UIBlueprint extends UIBlock {
     constructor(blueprint) {

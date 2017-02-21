@@ -21,7 +21,7 @@ export class Blueprint {
                 "Blueprint Inputs Edit",
                 "outputs", {
                 outputs: this._inputs,
-                    flowBooleans: [ false, true ]
+                flowBooleans: [ false, true ]
             }), false, true);
         }
 
@@ -30,7 +30,7 @@ export class Blueprint {
             "Blueprint Outputs Edit",
             "inputs", {
             inputs: this._outputs,
-                flowBooleans: [ true, false ]
+            flowBooleans: [ true, false ]
         }), true, false);
     }
 
@@ -51,7 +51,7 @@ export class Blueprint {
         }
         block.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());
         block.generateMagnets();
-        block.generateFlowMagnets(input, output, "#9575CD");
+        block.generateFlowMagnets(input, output);
         this._blocks.push(block);
         return this._blocks.length - 1;
     }
@@ -65,7 +65,7 @@ export class Blueprint {
     }
 
     draw() {
-        for (var i = 0; i < this._blocks.length; i++) {
+        for (let i = 0; i < this._blocks.length; i++) {
             this._blocks[i].draw();
         }
     }

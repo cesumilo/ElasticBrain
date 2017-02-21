@@ -4,39 +4,42 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  */
 
-var UIGraphics = require('./../UIGraphics');
-var UIStyles = require('./../UIStyles');
-var UIEvents = require('./../UIEvents');
+import { UIDrawable } from '../UIDrawable';
 
-export class UIBlockLink {
+let UIGraphics = require('./../UIGraphics');
+let UIStyles = require('./../UIStyles');
+let UIEvents = require('./../UIEvents');
+
+export class UIBlockLink extends UIDrawable {
 
     constructor(color="#424242", gradient=false, gradient_color=[]) {
+        super("link");
+
+        this._id = 0;
+        this._strokeStyle = color;
+
         this._objFrom = null;
         this._objTo = null;
-        this._id = 0;
         this._from = { x: 0, y: 0 };
         this._to = { x: 0, y: 0 };
+
         this._curvesPoints = [ { x: 0, y: 0 }, { x: 0, y: 0 } ];
         this._curvesOffset = UIStyles.UIBlockLinkDefaultCurveOffset;
         this._circleRadius = UIStyles.UIBlockLinkDefaultCircleRadius;
-        this._ctx = null;
-        this._canvas = null;
+
         this._trackCurvePointOne = false;
         this._trackCurvePointTwo = false;
         this._trackMouse = false;
         this._showEditCurve = true;
-        this._strokeStyle = color;
-        this._isGradient = gradient;
-        this._gradientColor = gradient_color;
 
-        if (this._gradientColor.length < 2) {
-            this._isGradient = false;
-        }
-
-        this._mouseMoveId = UIEvents.addEventListener("mouseMove", (delta) => this.mouseMoveHandler(delta));
-        this._mouseBeginClickAndDropId = UIEvents.addEventListener("mouseBeginClickAndDrop", (e) => this.mouseBeginClickAndDrop(e));
-        this._mouseEndClickAndDropId = UIEvents.addEventListener("mouseEndClickAndDrop", (e) => this.mouseEndClickAndDrop(e));
-        this._mouseFollowId = UIEvents.addEventListener("mouseFollow", (delta) => this.mouseMoveHandler(delta));
+        this.addHandlers(UIEvents.events.MOUSE_MOVE,
+            UIEvents.addEventListener(UIEvents.events.MOUSE_MOVE, (delta) => this.update(delta)));
+        this.addHandlers(UIEvents.events.BEGIN_CLICK_AND_DROP,
+            UIEvents.addEventListener(UIEvents.events.BEGIN_CLICK_AND_DROP, (e) => this.mouseBeginClickAndDrop(e)));
+        this.addHandlers(UIEvents.events.END_CLICK_AND_DROP,
+            UIEvents.addEventListener(UIEvents.events.END_CLICK_AND_DROP, (e) => this.mouseEndClickAndDrop(e)));
+        this.addHandlers(UIEvents.events.FOLLOW_MOUSE,
+            UIEvents.addEventListener(UIEvents.events.FOLLOW_MOUSE, (delta) => this.mouseMoveHandler(delta)));
     }
 
     setId(id) {
@@ -67,11 +70,6 @@ export class UIBlockLink {
         this._strokeStyle = color;
     }
 
-    setCanvas(canvas) {
-        this._canvas = canvas;
-        this._ctx = canvas.getContext('2d');
-    }
-
     getObjectFrom() {
         return this._objFrom;
     }
@@ -98,7 +96,8 @@ export class UIBlockLink {
 
         if (obj != null) {
             this._objTo = obj;
-            UIEvents.removeEventListener("mouseFollow", this._mouseFollowId);
+            UIEvents.removeEventListener(UIEvents.events.FOLLOW_MOUSE, this._listeners[UIEvents.events.FOLLOW_MOUSE]);
+            delete this._listeners[UIEvents.events.FOLLOW_MOUSE];
             this._trackMouse = false;
             this._showEditCurve = false;
         }
@@ -141,7 +140,7 @@ export class UIBlockLink {
     }
 
     mouseBeginClickAndDrop(e) {
-        var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
+        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
 
         if (UIGraphics.euclidianDist(this._curvesPoints[0].x, this._curvesPoints[0].y, pos.x, pos.y) < this._circleRadius) {
             this._trackCurvePointOne = true;
@@ -155,7 +154,7 @@ export class UIBlockLink {
         this._trackCurvePointTwo = false;
     }
 
-    mouseMoveHandler(delta) {
+    update(delta) {
         if (this._trackMouse) {
             this.eventUpdateTo(delta);
         }

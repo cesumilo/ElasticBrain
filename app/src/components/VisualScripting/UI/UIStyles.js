@@ -21,7 +21,7 @@ module.exports = {
     UIBlockStrokeColor: "#2E2C61",
     UIBlockDefaultWidth: 100,
     UIBlockDefaultHeight: 100,
-    UIBlockDefaultRadius: 2,
+    UIBlockDefaultRadius: 8,
     UIBlockDefaultHeaderHeight: 30,
     UIBlockDefaultUIBlockLinkOffset: 10,
     UIBlockDefaultTextOffset: 10,
@@ -31,6 +31,7 @@ module.exports = {
     UIBlockShadowBlur: 2,
     UIBlockShadowColor: "rgba(0,0,0,0.5)",
     UIBlockHeaderColor: "#D32F2F",
+    UIBlockDefaultTextColor: "#000000",
 
     // UIBlockLink Styles
     UIBlockLinkCircleFillColor: "rgba(255, 95, 76, " + 0.5 + ")",
