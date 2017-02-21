@@ -201,9 +201,8 @@ export class UIVisualScripting extends Component {
 
     render() {
         const classes = classNames("context-menu-node", { "context-menu-open": this.state.isContextMenuOpen });
-        var contents = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).map(function(content, i){
-            var elem = React.cloneElement(content, { key: 'content_' + i });
-            return elem;
+        const contents = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).map(function(content, i){
+            return React.cloneElement(content, { key: 'content_' + i });
         });
 
         return (
