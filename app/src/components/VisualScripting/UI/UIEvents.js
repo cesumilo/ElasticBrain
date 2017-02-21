@@ -9,6 +9,18 @@ module.exports = {
     _states : {
         extraContents: []
     },
+    events: {
+        MOUSE_CLICK: "mouseClick",
+        MOUSE_MOVE: "mouseMove",
+        BEGIN_CLICK_AND_DROP: "mouseBeginClickAndDrop",
+        END_CLICK_AND_DROP: "mouseEndClickAndDrop",
+        FOLLOW_MOUSE: "mouseFollow",
+        CONTEXT_MENU_MODE: "contextMenuMode"
+    },
+    states: {
+        CUSTOM_CONTEXT_MENU: "custom-context-menu",
+        EXTRA_CONTENTS: "extraContents"
+    },
 
     setVisualScriptingUI: function(ref) {
         this._ref = ref;

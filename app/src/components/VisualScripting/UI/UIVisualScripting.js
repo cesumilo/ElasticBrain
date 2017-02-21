@@ -16,33 +16,36 @@ import '../../../../public/css/VScriptingGUI.css';
 
 var UIGraphics = require('./UIGraphics');
 var UIEvents = require('./UIEvents');
-var UIStyles = require('./UIStyles');
 
 export class UIVisualScripting extends Component {
 
     constructor(props) {
         super(props);
+
         this.background =  new UIBackground();
+        this.handlers = {};
+        this.guiObjects = [];
+
         this.state = {
             canvas: null,
             ctx: null,
-
             oldMousePosition: { x: 0, y: 0 },
-            mouseClickHandlers: [],
-            mouseMoveHandlers: [],
-            mouseBeginClickAndDropHandlers: [],
-            mouseEndClickAndDropHandlers: [],
-            mouseFollowHandlers: [],
-            shouldUpdateHandlers: [],
-            contextMenuModeHandlers: [],
             willClickDrop: false,
             isClickDrop: false,
-
-            guiObjects: [],
             isContextMenuOpen: false
         };
 
+        this.initHandlers();
         UIEvents.setVisualScriptingUI(this);
+    }
+
+    initHandlers() {
+        this.handlers[UIEvents.events.MOUSE_CLICK] = [];
+        this.handlers[UIEvents.events.MOUSE_MOVE] = [];
+        this.handlers[UIEvents.events.BEGIN_CLICK_AND_DROP] = [];
+        this.handlers[UIEvents.events.END_CLICK_AND_DROP] = [];
+        this.handlers[UIEvents.events.FOLLOW_MOUSE] = [];
+        this.handlers[UIEvents.events.CONTEXT_MENU_MODE] = [];
     }
 
     getCanvas() {
@@ -54,13 +57,16 @@ export class UIVisualScripting extends Component {
             canvas: document.getElementById('vscripting-gui')
         }, function() {
             this.background.setCanvas(this.state.canvas);
+
+            // TODO: Revoir comment adapter la taille du canvas à l'écran
             this.state.canvas.setAttribute("width", document.body.clientWidth);
             this.state.canvas.setAttribute("height", document.body.clientHeight * 0.938);
+
             this.state.canvas.addEventListener("mousedown", (e) => this.mouseDownHandler(e));
             this.state.canvas.addEventListener("mousemove", (e) => this.mouseMoveHandler(e));
             this.state.canvas.addEventListener("mouseup", (e) => this.mouseUpHandler(e));
 
-            // TODO: Load Blueprint
+            /* TESTING ZONE */
             var blueprint = new Blueprint("blueprint", ["position", "scale"], ["position"]);
             blueprint.addBlock(new UIBlock("test", "#B71C1C", "#000000", {
                 inputs: ["a"],
@@ -69,11 +75,10 @@ export class UIVisualScripting extends Component {
             var ui = new UIBlueprint(blueprint);
             ui.setCanvas(this.state.canvas);
             this.addDrawableObject(blueprint);
+            /* END OF TESTING ZONE */
 
             this.setState({
                 ctx: this.state.canvas.getContext('2d')
-            }, function() {
-                this.forceUpdate();
             });
         });
     }
@@ -81,29 +86,28 @@ export class UIVisualScripting extends Component {
     componentDidUpdate() {
         if (this.state.ctx) {
             this.state.canvas.width = this.state.canvas.width;
-            //this.state.ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
             this.background.draw();
-
-            for (var i = 0; i < this.state.guiObjects.length; i++) {
-                this.state.guiObjects[i].draw();
+            for (let i = 0; i < this.guiObjects.length; i++) {
+                this.guiObjects[i].draw();
             }
         }
     }
 
     addDrawableObject(object) {
         if (typeof object.draw === "function") {
-            this.state.guiObjects.push(object);
+            this.guiObjects.push(object);
         }
     }
 
     mouseDownHandler(e) {
-        var i = 0;
+        let i = 0;
+
         if (e.button === UIEvents.getButton("mouseRightButton")) {
-            while (i < this.state.contextMenuModeHandlers.length && !this.state.contextMenuModeHandlers[i](e)) {
+            while (i < this.handlers[UIEvents.events.CONTEXT_MENU_MODE].length && !this.handlers[UIEvents.events.CONTEXT_MENU_MODE][i](e)) {
                 i++;
             }
-            if (i >= this.state.contextMenuModeHandlers.length) {
-                UIEvents.removeState('custom-context-menu');
+            if (i >= this.handlers[UIEvents.events.CONTEXT_MENU_MODE].length) {
+                UIEvents.removeState(UIEvents.states.CUSTOM_CONTEXT_MENU);
             }
         }
 
@@ -115,17 +119,16 @@ export class UIVisualScripting extends Component {
     }
 
     mouseUpHandler(e) {
+        let i = 0;
+
         if (!this.state.isClickDrop) {
-            for (var i = 0; i < this.state.mouseClickHandlers.length; i++) {
-                if (this.state.mouseClickHandlers[i](e)) {
-                    this.forceUpdate();
-                    break;
-                }
+            while (i < this.handlers[UIEvents.events.MOUSE_CLICK].length && !this.handlers[UIEvents.events.MOUSE_CLICK][i](e)) {
+                i++;
             }
         } else {
-            for (var j = 0; j < this.state.mouseEndClickAndDropHandlers.length; j++) {
-                if (this.state.mouseEndClickAndDropHandlers[j](e))
-                    break;
+            while (i < this.handlers[UIEvents.events.END_CLICK_AND_DROP].length
+                    && !this.handlers[UIEvents.events.END_CLICK_AND_DROP][i](e)) {
+                i++;
             }
         }
 
@@ -136,112 +139,54 @@ export class UIVisualScripting extends Component {
     }
 
     mouseMoveHandler(e) {
-        var pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);
+        const pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);
+        const newMousePos = {
+            x: pos.x - this.state.oldMousePosition.x,
+            y: pos.y - this.state.oldMousePosition.y
+        };
+        let i = 0;
 
         if (this.state.willClickDrop && !this.state.isClickDrop) {
             this.setState({
                 isClickDrop: true
             }, function() {
-                for (var j = 0; j < this.state.mouseBeginClickAndDropHandlers.length; j++) {
-                    if (this.state.mouseBeginClickAndDropHandlers[j](e))
-                        break;
+                let j = 0;
+                while (j < this.handlers[UIEvents.events.BEGIN_CLICK_AND_DROP].length
+                        && !this.handlers[UIEvents.events.BEGIN_CLICK_AND_DROP][j](e)) {
+                    j++;
                 }
             });
         }
 
         if (this.state.isClickDrop) {
-            for (var i = 0; i < this.state.mouseMoveHandlers.length; i++) {
-                if (this.state.mouseMoveHandlers[i]({
-                    x: pos.x - this.state.oldMousePosition.x,
-                    y: pos.y - this.state.oldMousePosition.y
-                })) {
-                    this.forceUpdate();
-                    break;
-                }
+            i = 0;
+            while (i < this.handlers[UIEvents.events.MOUSE_MOVE].length
+                    && !this.handlers[UIEvents.events.MOUSE_MOVE][i](newMousePos)) {
+                i++;
             }
         }
 
-        for (var j = 0; j < this.state.mouseFollowHandlers.length; j++) {
-            if (this.state.mouseFollowHandlers[j]({
-                    x: pos.x - this.state.oldMousePosition.x,
-                    y: pos.y - this.state.oldMousePosition.y
-                })) {
-                this.forceUpdate();
-                break;
-            }
+        i = 0;
+        while (i < this.handlers[UIEvents.events.FOLLOW_MOUSE].length
+                && !this.handlers[UIEvents.events.FOLLOW_MOUSE][i](newMousePos)) {
+            i++;
         }
 
-        this.setState({
-            oldMousePosition: UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY)
-        });
+        this.setState({ oldMousePosition: pos });
     }
 
     addEventListener(name, callback) {
-        switch(name) {
-            case "mouseClick":
-                this.state.mouseClickHandlers.push(callback);
-                return this.state.mouseClickHandlers.length - 1;
-            case "mouseMove":
-                this.state.mouseMoveHandlers.push(callback);
-                return this.state.mouseMoveHandlers.length - 1;
-            case "mouseBeginClickAndDrop":
-                this.state.mouseBeginClickAndDropHandlers.push(callback);
-                return this.state.mouseBeginClickAndDropHandlers.length - 1;
-            case "mouseEndClickAndDrop":
-                this.state.mouseEndClickAndDropHandlers.push(callback);
-                return this.state.mouseEndClickAndDropHandlers.length - 1;
-            case "mouseFollow":
-                this.state.mouseFollowHandlers.push(callback);
-                return this.state.mouseFollowHandlers.length - 1;
-            case "contextMenuMode":
-                this.state.contextMenuModeHandlers.push(callback);
-                return this.state.contextMenuModeHandlers.length - 1;
-            default:
-                return -1;
-        }
+        if (!this.handlers.hasOwnProperty(name))
+            return -1;
+        this.handlers[name].push(callback);
+        return this.handlers[name].length;
     }
 
     removeEventListener(name, id) {
-        switch(name) {
-            case "mouseClick":
-                if (id >= this.state.mouseClickHandlers.length) {
-                    return false;
-                }
-                this.state.mouseClickHandlers.splice(id, 1);
-                return true;
-            case "mouseMove":
-                if (id >= this.state.mouseMoveHandlers.length) {
-                    return false;
-                }
-                this.state.mouseMoveHandlers.splice(id, 1);
-                return true;
-            case "mouseBeginClickAndDrop":
-                if (id >= this.state.mouseBeginClickAndDropHandlers.length) {
-                    return false;
-                }
-                this.state.mouseBeginClickAndDropHandlers.splice(id, 1);
-                return true;
-            case "mouseEndClickAndDrop":
-                if (id >= this.state.mouseEndClickAndDropHandlers.length) {
-                    return false;
-                }
-                this.state.mouseEndClickAndDropHandlers.splice(id, 1);
-                return true;
-            case "mouseFollow":
-                if (id >= this.state.mouseFollowHandlers.length) {
-                    return false;
-                }
-                this.state.mouseFollowHandlers.splice(id, 1);
-                return true;
-            case "contextMenuMode":
-                if (id >= this.state.contextMenuModeHandlers.length) {
-                    return false;
-                }
-                this.state.contextMenuModeHandlers.splice(id, 1);
-                return true;
-            default:
-                return false;
-        }
+        if (!this.handlers.hasOwnProperty(name) || id >= this.handlers[name].length)
+            return false;
+        this.handlers[name].splice(id, 1);
+        return true;
     }
 
     showContextMenu(e) {
@@ -256,7 +201,7 @@ export class UIVisualScripting extends Component {
 
     render() {
         const classes = classNames("context-menu-node", { "context-menu-open": this.state.isContextMenuOpen });
-        var contents = UIEvents.getState('extraContents').map(function(content, i){
+        var contents = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).map(function(content, i){
             var elem = React.cloneElement(content, { key: 'content_' + i });
             return elem;
         });
