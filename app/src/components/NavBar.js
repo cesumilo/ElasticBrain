@@ -5,6 +5,7 @@
  */
 
 import React, { Component } from 'react';
+import { Link } from 'react-router';
 
 export class NavBar extends Component {
     render() {
@@ -19,6 +20,10 @@ export class NavBar extends Component {
                     <button className="pt-button pt-minimal pt-icon-notifications"></button>
                     <button className="pt-button pt-minimal pt-icon-cog"></button>
                 </div>
+		<div className="pt-navbar-group pt-align-right">
+		  <Link to="/" className="pt-button pt-minimal pt-icon-home">Home</Link>
+		  <Link to="/vscripting" className="pt-button pt-minimal pt-icon-build">Visual Scripting</Link>
+		</div>
             </nav>
         );
     }
