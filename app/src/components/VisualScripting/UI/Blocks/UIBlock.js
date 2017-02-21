@@ -34,7 +34,8 @@ export class UIBlock extends UIDrawable {
             UIEvents.addEventListener(UIEvents.events.BEGIN_CLICK_AND_DROP, (e) => this.mouseBeginClickAndDropHandler(e)));
         this.addHandlers(UIEvents.events.END_CLICK_AND_DROP,
             UIEvents.addEventListener(UIEvents.events.END_CLICK_AND_DROP, (e) => this.mouseEndClickAndDropHandler(e)));
-        this.addHandlers(UIEvents.events.MOUSE_MOVE, (e) => this.update(e));
+        this.addHandlers(UIEvents.events.MOUSE_MOVE,
+            UIEvents.addEventListener(UIEvents.events.MOUSE_MOVE, (e) => this.update(e)));
 
         this.generateVariables(options);
     }
@@ -46,7 +47,7 @@ export class UIBlock extends UIDrawable {
     generateVariables(options) {
         this._inputs = [];
         this._outputs = [];
-        this._moveBlockHandlers = [];
+        this._handlers[UIEvents.events.MOVE_BLOCK] = [];
 
         for (let i = 0; i < this._drawables.length; i++) {
             this._drawables[i].removeHandlers();
@@ -108,11 +109,10 @@ export class UIBlock extends UIDrawable {
     }
 
     generateMagnets() {
+        this._ctx.font = UIStyles.UIBlockDefaultFont;
         const titleWidth = this._ctx.measureText(this._name).width + (UIStyles.UIBlockDefaultTextOffset * 2);
         const length = (this._inputs.length > this._outputs.length ? this._outputs.length : this._inputs.length);
         let maxVariablesWidth = 0;
-
-        this._ctx.font = UIStyles.UIBlockDefaultFont;
 
         for (let j = 0; j < length; j++) {
             const inputWidth = this._ctx.measureText(this._inputs[j].obj.getName()).width;
@@ -147,8 +147,8 @@ export class UIBlock extends UIDrawable {
 
     update(delta) {
         if (this._trackMouse) {
-            for (let m = 0; m < this._moveBlockHandlers.length; m++) {
-                this._moveBlockHandlers[m](delta);
+            for (let m = 0; m < this._handlers[UIEvents.events.MOVE_BLOCK].length; m++) {
+                this._handlers[UIEvents.events.MOVE_BLOCK][m](delta);
             }
             this._pos = { x: this._pos.x + delta.x, y: this._pos.y + delta.y };
         }

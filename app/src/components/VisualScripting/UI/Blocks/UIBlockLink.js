@@ -12,7 +12,7 @@ let UIEvents = require('./../UIEvents');
 
 export class UIBlockLink extends UIDrawable {
 
-    constructor(color="#424242", gradient=false, gradient_color=[]) {
+    constructor(color=UIStyles.UIBlockLineDefaultColor) {
         super("link");
 
         this._id = 0;
@@ -39,7 +39,7 @@ export class UIBlockLink extends UIDrawable {
         this.addHandlers(UIEvents.events.END_CLICK_AND_DROP,
             UIEvents.addEventListener(UIEvents.events.END_CLICK_AND_DROP, (e) => this.mouseEndClickAndDrop(e)));
         this.addHandlers(UIEvents.events.FOLLOW_MOUSE,
-            UIEvents.addEventListener(UIEvents.events.FOLLOW_MOUSE, (delta) => this.mouseMoveHandler(delta)));
+            UIEvents.addEventListener(UIEvents.events.FOLLOW_MOUSE, (delta) => this.update(delta)));
     }
 
     setId(id) {

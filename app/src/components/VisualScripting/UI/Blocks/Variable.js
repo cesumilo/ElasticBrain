@@ -4,10 +4,9 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  */
 
-import React from 'react';
 import { UIBlockMagnet } from './UIBlockMagnet';
 
-var UIStyles = require('./../UIStyles');
+let UIStyles = require('./../UIStyles');
 
 export class Variable extends UIBlockMagnet {
     constructor(parent, name = UIStyles.UIBlockMagnetDefaultName, input = false, color=UIStyles.UIBlockMagnetInputFillColor) {

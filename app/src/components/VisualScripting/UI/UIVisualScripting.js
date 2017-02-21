@@ -208,7 +208,7 @@ export class UIVisualScripting extends Component {
         return (
             <div className={classes} onContextMenu={(e) => this.showContextMenu(e)}>
                 {contents}
-                <img id="vscripting-gui-_background" src="img/grid.jpg" style={{display: "none"}} />
+                <img id="vscripting-gui-background" src="img/grid.jpg" style={{display: "none"}} alt="background" />
                 <canvas id="vscripting-gui"></canvas>
             </div>
         );

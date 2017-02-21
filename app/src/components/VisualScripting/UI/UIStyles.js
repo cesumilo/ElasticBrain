@@ -40,6 +40,7 @@ module.exports = {
     UIBlockLinkBezierCurveStrokeColor: "#333",
     UIBlockLinkDefaultCurveOffset: 50,
     UIBlockLinkDefaultCircleRadius: 10,
+    UIBlockLineDefaultColor: "#424242",
 
     // UIBlockFlow
     UIBlockFlowFillColor: "#EBDE19",

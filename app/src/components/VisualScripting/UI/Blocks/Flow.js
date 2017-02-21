@@ -9,9 +9,9 @@ import { UIBlockLink } from './UIBlockLink';
 import { UIBlockMagnetContextMenu } from './UIBlockMagnetContextMenu';
 import { UIBlockMagnet } from './UIBlockMagnet';
 
-var UIGraphics = require('./../UIGraphics');
-var UIStyles = require('./../UIStyles');
-var UIEvents = require('./../UIEvents');
+let UIGraphics = require('./../UIGraphics');
+let UIStyles = require('./../UIStyles');
+let UIEvents = require('./../UIEvents');
 
 export class Flow extends UIBlockMagnet {
 

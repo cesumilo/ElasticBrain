@@ -22,8 +22,10 @@ export class UIBlockMagnet extends UIDrawable {
         this._links = [];
         this._inputLink = null;
         this._color = color;
+        this._width = UIStyles.UIBlockMagnetDefaultWidth;
+        this._height = UIStyles.UIBlockMagnetDefaultHeight;
 
-        this.initHandlers();
+        this.initEventListeners();
         this.addHandlers(UIEvents.events.MOUSE_CLICK,
             UIEvents.addEventListener(UIEvents.events.MOUSE_CLICK, (e) => this.mouseClickHandler(e)));
         this.addHandlers(UIEvents.events.CONTEXT_MENU_MODE,

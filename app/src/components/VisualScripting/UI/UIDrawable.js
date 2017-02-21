@@ -43,8 +43,8 @@ export class UIDrawable {
     }
 
     removeHandlers() {
-        for (let i = 0; i < this._listeners.keys().length; i++) {
-            UIEvents.removeEventListener(this._listeners.keys()[i], this._listeners[this._listeners.keys()[i]]);
+        for (let key in this._listeners) {
+            UIEvents.removeEventListener(key, this._listeners[key]);
         }
     }
 
