@@ -146,12 +146,18 @@ export class UIBlockFlow {
         }
     }
 
+    removeInputLink() {
+        this._inputLink.getObjectTo().removeLink(this._inputLink.getId());
+        delete this._inputLink;
+        this._inputLink = null;
+    }
+
     contextMenuModeHandler(e) {
         var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
 
         if (this._type === "output" && this._inputLink && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
             && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height) {
-            UIEvents.addState('custom-context-menu', <UIBlockMagnetContextMenu isEditing={this._inputLink.isInEditMode()} onEdit={() => this.contextMenuModeOnEditAndSave()} onSave={() => this.contextMenuModeOnEditAndSave()} onCut={() => this._inputLink.getObjectTo().removeLink(this._inputLink.getId())} />);
+            UIEvents.addState('custom-context-menu', <UIBlockMagnetContextMenu isEditing={this._inputLink.isInEditMode()} onEdit={() => this.contextMenuModeOnEditAndSave()} onSave={() => this.contextMenuModeOnEditAndSave()} onCut={() => this.removeInputLink()} />);
             return true;
         }
         return false;

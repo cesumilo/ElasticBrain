@@ -113,8 +113,8 @@ export class UIBlockMagnet {
     mouseClickHandler(e) {
         var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
 
-        if (this._type === "output" && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
-            && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height
+        if (this._type === "output" && pos.x >= this._pos.x - 10 && pos.x <= this._pos.x + this._width + 10
+            && pos.y >= this._pos.y - 10 && pos.y <= this._pos.y + this._height + 10
             && !UIEvents.getState('currentLink')) {
             var link = new UIBlockLink();
             link.setCanvas(this._canvas);
@@ -125,8 +125,8 @@ export class UIBlockMagnet {
             link.setId(this._links.length - 1);
             UIEvents.addState('currentLink', link);
             return true;
-        } else if (this._type === "input" && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
-            && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height && UIEvents.getState('currentLink')) {
+        } else if (this._type === "input" && pos.x >= this._pos.x - 10 && pos.x <= this._pos.x + this._width + 10
+            && pos.y >= this._pos.y - 10 && pos.y <= this._pos.y + this._height + 10 && UIEvents.getState('currentLink')) {
             var currentLink = UIEvents.getState('currentLink');
             currentLink.attachTo(this._pos.x + this._width / 2, this._pos.y + this._height / 2, this);
             this.addEventListener("moveMagnet", (delta) => currentLink.eventUpdateTo(delta));
@@ -149,8 +149,8 @@ export class UIBlockMagnet {
     contextMenuModeHandler(e) {
         var pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);
 
-        if (this._type === "input" && this._inputLink && pos.x >= this._pos.x && pos.x <= this._pos.x + this._width
-            && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height) {
+        if (this._type === "input" && this._inputLink && pos.x >= this._pos.x - 5 && pos.x <= this._pos.x + this._width + 5
+            && pos.y >= this._pos.y - 5 && pos.y <= this._pos.y + this._height + 5) {
             UIEvents.addState('custom-context-menu', <UIBlockMagnetContextMenu isEditing={this._inputLink.isInEditMode()} onEdit={() => this.contextMenuModeOnEditAndSave()} onSave={() => this.contextMenuModeOnEditAndSave()} onCut={() => this._inputLink.getObjectFrom().removeLink(this._inputLink.getId())} />);
             return true;
         }

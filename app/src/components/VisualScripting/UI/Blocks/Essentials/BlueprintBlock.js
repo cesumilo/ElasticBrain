@@ -26,7 +26,7 @@ export class BlueprintBlock extends UIBlock {
         this._uiBlockHeaderColor = UIStyles.BlueprintBlockHeaderColor;
         this._generatedFlowMagnets = options['flowBooleans'];
 
-        UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
+        this._contextMenuId = UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
     }
 
     handleEditCloseMenu() {
@@ -38,6 +38,8 @@ export class BlueprintBlock extends UIBlock {
         this.generateVariables(options);
         this.generateMagnets();
         this.generateFlowMagnets(this._generatedFlowMagnets[0], this._generatedFlowMagnets[1]);
+        UIEvents.removeEventListener("contextMenuMode", this._contextMenuId);
+        this._contextMenuId = UIEvents.addEventListener('contextMenuMode', (e) => this.contextMenuModeHandler(e));
     }
 
     onEditContextMenu() {
