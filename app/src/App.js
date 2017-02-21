@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Router, Route, Link, IndexRoute, hashHistory, browserHistory } from 'react-router'
 
+import { NavBar } from './components/NavBar.js';
 import Landing from './pages/Landing';
 import VScripting from './pages/VScripting';
 import './index.css';

@@ -11,8 +11,6 @@ import { UIVisualScripting } from '../components/VisualScripting/UI/UIVisualScri
 import '../../node_modules/normalize.css/normalize.css';
 import '../../node_modules/@blueprintjs/core/dist/blueprint.css';
 
-// TODO: add a js module to store listener function
-
 class VScripting extends Component {
   render() {
       return (

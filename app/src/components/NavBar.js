@@ -12,7 +12,7 @@ export class NavBar extends Component {
         return (
             <nav className="pt-navbar pt-dark" style={{backgroundColor: "#01579B"}}>
                 <div className="pt-navbar-group pt-align-left">
-                    <div className="pt-navbar-heading">ElasticBrain</div>
+                    <Link to="/" className="pt-navbar-heading">ElasticBrain</Link>
                 </div>
                 <div className="pt-navbar-group pt-align-right">
                     <span className="pt-navbar-divider"></span>
