@@ -20,6 +20,7 @@ let UIEvents = require('./UIEvents');
 
 /**
  * Describe the UI class for Visual Scripting.
+ * @extends {Component}
  */
 export class UIVisualScripting extends Component {
 
@@ -30,10 +31,31 @@ export class UIVisualScripting extends Component {
     constructor(props) {
         super(props);
 
+        /**
+         * Contains the background of the canvas.
+         * @type {UIBackground}
+         * @private
+         */
         this._background =  new UIBackground();
+
+        /**
+         * Contains all the handlers which have been registered.
+         * @type {object}
+         * @private
+         */
         this._handlers = {};
+
+        /**
+         * Contains all the drawable objects.
+         * @type {Array}
+         * @private
+         */
         this._guiObjects = [];
 
+        /**
+         * Contains all the states of the React Component.
+         * @type {object}
+         */
         this.state = {
             canvas: null,
             ctx: null,
@@ -68,7 +90,7 @@ export class UIVisualScripting extends Component {
     }
 
     /**
-     * Initialize all the UI dependencies.
+     * Initialize all the UI dependencies and register the UI to the canvas events.
      */
     componentDidMount() {
         this.setState({
@@ -115,8 +137,8 @@ export class UIVisualScripting extends Component {
     }
 
     /**
-     * Allow to add new object in the canvas.
-     * @param {object} Contains the new object which will be draw on the canvas.
+     * Allow to add new object in the canvas. The object has to inherit from UIDrawable class.
+     * @param {object} object Contains the new object which will be draw on the canvas.
      */
     addDrawableObject(object) {
         if (object instanceof UIDrawable) {
@@ -124,6 +146,10 @@ export class UIVisualScripting extends Component {
         }
     }
 
+    /**
+     * Handle the mouse button down event.
+     * @param {object} e Contains the event send by the canvas.
+     */
     mouseDownHandler(e) {
         let i = 0;
 
@@ -143,6 +169,10 @@ export class UIVisualScripting extends Component {
         }
     }
 
+    /**
+     * Handle the mouse button up event.
+     * @param {object} e Contains the event send by the canvas
+     */
     mouseUpHandler(e) {
         let i = 0;
 
@@ -163,6 +193,10 @@ export class UIVisualScripting extends Component {
         });
     }
 
+    /**
+     * Handle the mouse movement.
+     * @param {object} e Contains the event send by the canvas.
+     */
     mouseMoveHandler(e) {
         const pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);
         const newMousePos = {
@@ -200,6 +234,12 @@ export class UIVisualScripting extends Component {
         this.setState({ oldMousePosition: pos });
     }
 
+    /**
+     * Allow to register a callback to an event supported by the UI.
+     * @param {string} name Contains the name of the event that the callback will be registered.
+     * @param {function} callback Contains the callback function which will be called when the event is fired.
+     * @returns {number} Returns the index of the callback in the registering list.
+     */
     addEventListener(name, callback) {
         if (!this._handlers.hasOwnProperty(name))
             return -1;
@@ -207,6 +247,12 @@ export class UIVisualScripting extends Component {
         return this._handlers[name].length;
     }
 
+    /**
+     * Allow to remove a callback from an event.
+     * @param {string} name Contains the name of the event that the callback has been registered.
+     * @param {number} id Contains the index in the registering list of the callback.
+     * @returns {boolean} Returns true if the removing has been done.
+     */
     removeEventListener(name, id) {
         if (!this._handlers.hasOwnProperty(name) || id >= this._handlers[name].length)
             return false;
@@ -214,16 +260,27 @@ export class UIVisualScripting extends Component {
         return true;
     }
 
+    /**
+     * Show the context menu when the event is fired.
+     * @param {object} e Contains the event fired by the canvas.
+     */
     showContextMenu(e) {
         e.preventDefault();
         ContextMenu.show(<UIContextMenu/>, { left: e.clientX, top: e.clientY }, () => this.onContextMenuClose());
         this.setState({ isContextMenuOpen: true });
     }
 
+    /**
+     * Close the current context menu.
+     */
     onContextMenuClose() {
         this.setState({ isContextMenuOpen: false });
     }
 
+    /**
+     * Render the Visual Scripting UI in the DOM.
+     * @returns {XML}
+     */
     render() {
         const classes = classNames("context-menu-node", { "context-menu-open": this.state.isContextMenuOpen });
         const contents = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).map(function(content, i){

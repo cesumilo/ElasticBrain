@@ -60,7 +60,8 @@ export class UIBlock extends UIDrawable {
                     let input = new Variable(ref, options['inputs'][i], true, ref._magnetColor);
                     ref._drawables.push(input);
                     ref._inputs.push({ index: length, obj: ref._drawables[length - 1], name: options['inputs'][i] });
-                    ref._drawables[length - 1].setPosition(ref._pos.x - UIStyles.UIBlockMagnetDefaultWidth + (UIStyles.UIBlockMagnetDefaultWidth / 2),
+                    ref._drawables[length - 1].setPosition(ref._pos.x - UIStyles.UIBlockMagnetDefaultWidth
+                        + (UIStyles.UIBlockMagnetDefaultWidth / 2),
                         (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y
                         + (i * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));
                     ref.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => ref._drawables[length - 1].update(delta));

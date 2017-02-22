@@ -823,7 +823,7 @@
     "__docId__": 32,
     "kind": "file",
     "name": "VisualScripting/UI/Blocks/UIBlock.js",
-    "content": "/**\n * Created by Cesumilo on 06/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nimport { Variable } from './Variable';\nimport { Flow } from './Flow';\nimport { UIDrawable } from '../UIDrawable';\n\nlet UIGraphics = require('./../UIGraphics');\nlet UIStyles = require('./../UIStyles');\nlet UIEvents = require('./../UIEvents');\n\nexport class UIBlock extends UIDrawable {\n\n    constructor(name, magnetColor, flowColor, options = {}, textColor=UIStyles.UIBlockDefaultTextColor) {\n        super(\"default\");\n\n        this._name = name;\n\n        this._trackMouse = false;\n        this._drawables = [];\n        this._inputs = [];\n        this._outputs = [];\n\n        this._uiBlockColor = UIStyles.UIBlockFillColor;\n        this._uiBlockHeaderColor = UIStyles.UIBlockHeaderColor;\n        this._magnetColor = magnetColor;\n        this._flowColor = flowColor;\n        this._textColor = textColor;\n\n        this.addHandlers(UIEvents.events.BEGIN_CLICK_AND_DROP,\n            UIEvents.addEventListener(UIEvents.events.BEGIN_CLICK_AND_DROP, (e) => this.mouseBeginClickAndDropHandler(e)));\n        this.addHandlers(UIEvents.events.END_CLICK_AND_DROP,\n            UIEvents.addEventListener(UIEvents.events.END_CLICK_AND_DROP, (e) => this.mouseEndClickAndDropHandler(e)));\n        this.addHandlers(UIEvents.events.MOUSE_MOVE,\n            UIEvents.addEventListener(UIEvents.events.MOUSE_MOVE, (e) => this.update(e)));\n\n        this.generateVariables(options);\n    }\n\n    initEventListeners() {\n        this._handlers[UIEvents.events.MOVE_BLOCK] = [];\n    }\n\n    generateVariables(options) {\n        this._inputs = [];\n        this._outputs = [];\n        this._handlers[UIEvents.events.MOVE_BLOCK] = [];\n\n        for (let i = 0; i < this._drawables.length; i++) {\n            this._drawables[i].removeHandlers();\n        }\n        this._drawables = [];\n\n        if (options.hasOwnProperty('inputs')) {\n            for (let i = 0; i < options['inputs'].length; i++) {\n                !function(ref, length) {\n                    let input = new Variable(ref, options['inputs'][i], true, ref._magnetColor);\n                    ref._drawables.push(input);\n                    ref._inputs.push({ index: length, obj: ref._drawables[length - 1], name: options['inputs'][i] });\n                    ref._drawables[length - 1].setPosition(ref._pos.x - UIStyles.UIBlockMagnetDefaultWidth + (UIStyles.UIBlockMagnetDefaultWidth / 2),\n                        (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y\n                        + (i * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));\n                    ref.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => ref._drawables[length - 1].update(delta));\n                }(this, this._drawables.length + 1);\n            }\n        }\n\n        if (options.hasOwnProperty('outputs')) {\n            for (let j = 0; j < options['outputs'].length; j++) {\n                !function (ref, length) {\n                    let output = new Variable(ref, options['outputs'][j], false, ref._magnetColor);\n                    ref._drawables.push(output);\n                    ref._outputs.push({ index: length, obj: output, name: options['outputs'][j] });\n                    ref._drawables[length - 1].setPosition(ref._pos.x + ref._width + 1,\n                        (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y\n                        + (j * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));\n                    ref.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => ref._drawables[length - 1].update(delta));\n                }(this, this._drawables.length + 1);\n            }\n        }\n\n        const nbElements = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);\n        this._height = (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset)\n            + ((UIStyles.UIBlockDefaultUIBlockLinkOffset * nbElements)\n            + (UIStyles.UIBlockMagnetDefaultHeight * (nbElements + 1)));\n    }\n\n    generateFlowMagnets(input=true, output=true) {\n        if (input) {\n            let inputFlow = new Flow(this, \"\", true, this._flowColor);\n            inputFlow.setPosition(this._pos.x - inputFlow.getSize().width + (UIStyles.UIBlockMagnetDefaultWidth / 2),\n                this._pos.y + ((UIStyles.UIBlockDefaultHeaderHeight - inputFlow.getSize().height) / 2));\n            inputFlow.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());\n            this._drawables.push(inputFlow);\n            this.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => inputFlow.update(delta));\n        }\n\n        if (output) {\n            let outputFlow = new Flow(this, \"\", false, this._flowColor);\n            outputFlow.setPosition(this._pos.x + this._width - (UIStyles.UIBlockMagnetDefaultWidth / 2),\n                this._pos.y + ((UIStyles.UIBlockDefaultHeaderHeight - outputFlow.getSize().height) / 2));\n            outputFlow.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());\n            this._drawables.push(outputFlow);\n            this.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => outputFlow.update(delta));\n        }\n    }\n\n    generateMagnets() {\n        this._ctx.font = UIStyles.UIBlockDefaultFont;\n        const titleWidth = this._ctx.measureText(this._name).width + (UIStyles.UIBlockDefaultTextOffset * 2);\n        const length = (this._inputs.length > this._outputs.length ? this._outputs.length : this._inputs.length);\n        let maxVariablesWidth = 0;\n\n        for (let j = 0; j < length; j++) {\n            const inputWidth = this._ctx.measureText(this._inputs[j].obj.getName()).width;\n            const outputWidth = this._ctx.measureText(this._outputs[j].obj.getName()).width;\n            const totalWidth = (UIStyles.UIBlockDefaultTextOffset * 2) + UIStyles.UIBlockDefaultCorpusOffset\n                + inputWidth + outputWidth;\n            if (totalWidth > maxVariablesWidth) {\n                maxVariablesWidth = totalWidth;\n            }\n        }\n        this._width = (maxVariablesWidth > titleWidth ? maxVariablesWidth : titleWidth);\n\n        for(let t = 0; t < this._outputs.length; t++) {\n            this._outputs[t].obj.setPosition(this._pos.x + this._width - (UIStyles.UIBlockMagnetDefaultWidth / 2), this._outputs[t].obj.getPosition().y);\n        }\n\n        for (let i = 0; i < this._drawables.length; i++) {\n            this._drawables[i].setCanvas(this._canvas);\n        }\n    }\n\n    mouseBeginClickAndDropHandler(e) {\n        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);\n        this._trackMouse = (pos.x >= this._pos.x && pos.x <= this._pos.x + this._width\n            && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height);\n        return this._trackMouse;\n    }\n\n    mouseEndClickAndDropHandler(e) {\n        this._trackMouse = false;\n    }\n\n    update(delta) {\n        if (this._trackMouse) {\n            for (let m = 0; m < this._handlers[UIEvents.events.MOVE_BLOCK].length; m++) {\n                this._handlers[UIEvents.events.MOVE_BLOCK][m](delta);\n            }\n            this._pos = { x: this._pos.x + delta.x, y: this._pos.y + delta.y };\n        }\n        return this._trackMouse;\n    }\n\n    draw() {\n        this._ctx.fillStyle = this._uiBlockColor;\n        this._ctx.shadowBlur = UIStyles.UIBlockShadowBlur;\n        this._ctx.shadowColor = UIStyles.UIBlockShadowColor;\n        UIGraphics.drawRoundedRect(this._ctx, this._pos.x, this._pos.y, this._width, this._height, 8, true, false);\n        this._ctx.shadowBlur = 0;\n\n        this._ctx.fillStyle = this._uiBlockHeaderColor;\n        UIGraphics.drawUpperRoundedRect(this._ctx, this._pos.x, this._pos.y, this._width,\n            UIStyles.UIBlockDefaultHeaderHeight, UIStyles.UIBlockDefaultRadius, true, false);\n\n        this._ctx.fillStyle = this._textColor;\n        for (let i = 0; i < this._inputs.length; i++) {\n            this._ctx.font = UIStyles.UIBlockDefaultFont;\n            this._ctx.fillText(this._inputs[i].obj.getName(), this._pos.x + UIStyles.UIBlockDefaultTextOffset,\n                this._inputs[i].obj.getPosition().y\n                + (UIGraphics.getTextHeight(this._inputs[i].obj.getName(), UIStyles.UIBlockDefaultFont).height / 1.7));\n        }\n\n        for (let j = 0; j < this._outputs.length; j++) {\n            this._ctx.font = UIStyles.UIBlockDefaultFont;\n            this._ctx.fillText(this._outputs[j].obj.getName(),\n                this._outputs[j].obj.getPosition().x - UIStyles.UIBlockDefaultTextOffset\n                - this._ctx.measureText(this._outputs[j].obj.getName()).width,\n                this._outputs[j].obj.getPosition().y\n                + (UIGraphics.getTextHeight(this._outputs[j].obj.getName(), UIStyles.UIBlockDefaultFont).height / 1.7));\n        }\n\n        const textHeight = UIGraphics.getTextHeight(this._name, UIStyles.UIBlockDefaultFont).height;\n        this._ctx.font = UIStyles.UIBlockDefaultFont;\n        this._ctx.fillText(this._name, this._pos.x\n            + ((this._width - this._ctx.measureText(this._name).width) / 2),\n            this._pos.y + (textHeight + ((UIStyles.UIBlockDefaultHeaderHeight - textHeight) / 2.8)));\n\n        for (let n = 0; n < this._drawables.length; n++) {\n            this._drawables[n].draw();\n        }\n    }\n}",
+    "content": "/**\n * Created by Cesumilo on 06/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nimport { Variable } from './Variable';\nimport { Flow } from './Flow';\nimport { UIDrawable } from '../UIDrawable';\n\nlet UIGraphics = require('./../UIGraphics');\nlet UIStyles = require('./../UIStyles');\nlet UIEvents = require('./../UIEvents');\n\nexport class UIBlock extends UIDrawable {\n\n    constructor(name, magnetColor, flowColor, options = {}, textColor=UIStyles.UIBlockDefaultTextColor) {\n        super(\"default\");\n\n        this._name = name;\n\n        this._trackMouse = false;\n        this._drawables = [];\n        this._inputs = [];\n        this._outputs = [];\n\n        this._uiBlockColor = UIStyles.UIBlockFillColor;\n        this._uiBlockHeaderColor = UIStyles.UIBlockHeaderColor;\n        this._magnetColor = magnetColor;\n        this._flowColor = flowColor;\n        this._textColor = textColor;\n\n        this.addHandlers(UIEvents.events.BEGIN_CLICK_AND_DROP,\n            UIEvents.addEventListener(UIEvents.events.BEGIN_CLICK_AND_DROP, (e) => this.mouseBeginClickAndDropHandler(e)));\n        this.addHandlers(UIEvents.events.END_CLICK_AND_DROP,\n            UIEvents.addEventListener(UIEvents.events.END_CLICK_AND_DROP, (e) => this.mouseEndClickAndDropHandler(e)));\n        this.addHandlers(UIEvents.events.MOUSE_MOVE,\n            UIEvents.addEventListener(UIEvents.events.MOUSE_MOVE, (e) => this.update(e)));\n\n        this.generateVariables(options);\n    }\n\n    initEventListeners() {\n        this._handlers[UIEvents.events.MOVE_BLOCK] = [];\n    }\n\n    generateVariables(options) {\n        this._inputs = [];\n        this._outputs = [];\n        this._handlers[UIEvents.events.MOVE_BLOCK] = [];\n\n        for (let i = 0; i < this._drawables.length; i++) {\n            this._drawables[i].removeHandlers();\n        }\n        this._drawables = [];\n\n        if (options.hasOwnProperty('inputs')) {\n            for (let i = 0; i < options['inputs'].length; i++) {\n                !function(ref, length) {\n                    let input = new Variable(ref, options['inputs'][i], true, ref._magnetColor);\n                    ref._drawables.push(input);\n                    ref._inputs.push({ index: length, obj: ref._drawables[length - 1], name: options['inputs'][i] });\n                    ref._drawables[length - 1].setPosition(ref._pos.x - UIStyles.UIBlockMagnetDefaultWidth\n                        + (UIStyles.UIBlockMagnetDefaultWidth / 2),\n                        (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y\n                        + (i * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));\n                    ref.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => ref._drawables[length - 1].update(delta));\n                }(this, this._drawables.length + 1);\n            }\n        }\n\n        if (options.hasOwnProperty('outputs')) {\n            for (let j = 0; j < options['outputs'].length; j++) {\n                !function (ref, length) {\n                    let output = new Variable(ref, options['outputs'][j], false, ref._magnetColor);\n                    ref._drawables.push(output);\n                    ref._outputs.push({ index: length, obj: output, name: options['outputs'][j] });\n                    ref._drawables[length - 1].setPosition(ref._pos.x + ref._width + 1,\n                        (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset) + ref._pos.y\n                        + (j * (UIStyles.UIBlockDefaultUIBlockLinkOffset + UIStyles.UIBlockMagnetDefaultHeight)));\n                    ref.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => ref._drawables[length - 1].update(delta));\n                }(this, this._drawables.length + 1);\n            }\n        }\n\n        const nbElements = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);\n        this._height = (UIStyles.UIBlockDefaultHeaderHeight + UIStyles.UIBlockDefaultUIBlockLinkOffset)\n            + ((UIStyles.UIBlockDefaultUIBlockLinkOffset * nbElements)\n            + (UIStyles.UIBlockMagnetDefaultHeight * (nbElements + 1)));\n    }\n\n    generateFlowMagnets(input=true, output=true) {\n        if (input) {\n            let inputFlow = new Flow(this, \"\", true, this._flowColor);\n            inputFlow.setPosition(this._pos.x - inputFlow.getSize().width + (UIStyles.UIBlockMagnetDefaultWidth / 2),\n                this._pos.y + ((UIStyles.UIBlockDefaultHeaderHeight - inputFlow.getSize().height) / 2));\n            inputFlow.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());\n            this._drawables.push(inputFlow);\n            this.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => inputFlow.update(delta));\n        }\n\n        if (output) {\n            let outputFlow = new Flow(this, \"\", false, this._flowColor);\n            outputFlow.setPosition(this._pos.x + this._width - (UIStyles.UIBlockMagnetDefaultWidth / 2),\n                this._pos.y + ((UIStyles.UIBlockDefaultHeaderHeight - outputFlow.getSize().height) / 2));\n            outputFlow.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());\n            this._drawables.push(outputFlow);\n            this.addEventListener(UIEvents.events.MOVE_BLOCK, (delta) => outputFlow.update(delta));\n        }\n    }\n\n    generateMagnets() {\n        this._ctx.font = UIStyles.UIBlockDefaultFont;\n        const titleWidth = this._ctx.measureText(this._name).width + (UIStyles.UIBlockDefaultTextOffset * 2);\n        const length = (this._inputs.length > this._outputs.length ? this._outputs.length : this._inputs.length);\n        let maxVariablesWidth = 0;\n\n        for (let j = 0; j < length; j++) {\n            const inputWidth = this._ctx.measureText(this._inputs[j].obj.getName()).width;\n            const outputWidth = this._ctx.measureText(this._outputs[j].obj.getName()).width;\n            const totalWidth = (UIStyles.UIBlockDefaultTextOffset * 2) + UIStyles.UIBlockDefaultCorpusOffset\n                + inputWidth + outputWidth;\n            if (totalWidth > maxVariablesWidth) {\n                maxVariablesWidth = totalWidth;\n            }\n        }\n        this._width = (maxVariablesWidth > titleWidth ? maxVariablesWidth : titleWidth);\n\n        for(let t = 0; t < this._outputs.length; t++) {\n            this._outputs[t].obj.setPosition(this._pos.x + this._width - (UIStyles.UIBlockMagnetDefaultWidth / 2), this._outputs[t].obj.getPosition().y);\n        }\n\n        for (let i = 0; i < this._drawables.length; i++) {\n            this._drawables[i].setCanvas(this._canvas);\n        }\n    }\n\n    mouseBeginClickAndDropHandler(e) {\n        const pos = UIGraphics.getCanvasCoordinates(this._canvas, e.clientX, e.clientY);\n        this._trackMouse = (pos.x >= this._pos.x && pos.x <= this._pos.x + this._width\n            && pos.y >= this._pos.y && pos.y <= this._pos.y + this._height);\n        return this._trackMouse;\n    }\n\n    mouseEndClickAndDropHandler(e) {\n        this._trackMouse = false;\n    }\n\n    update(delta) {\n        if (this._trackMouse) {\n            for (let m = 0; m < this._handlers[UIEvents.events.MOVE_BLOCK].length; m++) {\n                this._handlers[UIEvents.events.MOVE_BLOCK][m](delta);\n            }\n            this._pos = { x: this._pos.x + delta.x, y: this._pos.y + delta.y };\n        }\n        return this._trackMouse;\n    }\n\n    draw() {\n        this._ctx.fillStyle = this._uiBlockColor;\n        this._ctx.shadowBlur = UIStyles.UIBlockShadowBlur;\n        this._ctx.shadowColor = UIStyles.UIBlockShadowColor;\n        UIGraphics.drawRoundedRect(this._ctx, this._pos.x, this._pos.y, this._width, this._height, 8, true, false);\n        this._ctx.shadowBlur = 0;\n\n        this._ctx.fillStyle = this._uiBlockHeaderColor;\n        UIGraphics.drawUpperRoundedRect(this._ctx, this._pos.x, this._pos.y, this._width,\n            UIStyles.UIBlockDefaultHeaderHeight, UIStyles.UIBlockDefaultRadius, true, false);\n\n        this._ctx.fillStyle = this._textColor;\n        for (let i = 0; i < this._inputs.length; i++) {\n            this._ctx.font = UIStyles.UIBlockDefaultFont;\n            this._ctx.fillText(this._inputs[i].obj.getName(), this._pos.x + UIStyles.UIBlockDefaultTextOffset,\n                this._inputs[i].obj.getPosition().y\n                + (UIGraphics.getTextHeight(this._inputs[i].obj.getName(), UIStyles.UIBlockDefaultFont).height / 1.7));\n        }\n\n        for (let j = 0; j < this._outputs.length; j++) {\n            this._ctx.font = UIStyles.UIBlockDefaultFont;\n            this._ctx.fillText(this._outputs[j].obj.getName(),\n                this._outputs[j].obj.getPosition().x - UIStyles.UIBlockDefaultTextOffset\n                - this._ctx.measureText(this._outputs[j].obj.getName()).width,\n                this._outputs[j].obj.getPosition().y\n                + (UIGraphics.getTextHeight(this._outputs[j].obj.getName(), UIStyles.UIBlockDefaultFont).height / 1.7));\n        }\n\n        const textHeight = UIGraphics.getTextHeight(this._name, UIStyles.UIBlockDefaultFont).height;\n        this._ctx.font = UIStyles.UIBlockDefaultFont;\n        this._ctx.fillText(this._name, this._pos.x\n            + ((this._width - this._ctx.measureText(this._name).width) / 2),\n            this._pos.y + (textHeight + ((UIStyles.UIBlockDefaultHeaderHeight - textHeight) / 2.8)));\n\n        for (let n = 0; n < this._drawables.length; n++) {\n            this._drawables[n].draw();\n        }\n    }\n}",
     "static": true,
     "longname": "VisualScripting/UI/Blocks/UIBlock.js",
     "access": null,
@@ -1346,7 +1346,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#_height",
     "access": null,
     "description": null,
-    "lineNumber": 86,
+    "lineNumber": 87,
     "undocument": true,
     "unknown": [
       {
@@ -1371,7 +1371,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#generateFlowMagnets",
     "access": null,
     "description": null,
-    "lineNumber": 91,
+    "lineNumber": 92,
     "undocument": true,
     "unknown": [
       {
@@ -1411,7 +1411,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#generateMagnets",
     "access": null,
     "description": null,
-    "lineNumber": 111,
+    "lineNumber": 112,
     "undocument": true,
     "unknown": [
       {
@@ -1430,7 +1430,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#_width",
     "access": null,
     "description": null,
-    "lineNumber": 126,
+    "lineNumber": 127,
     "undocument": true,
     "unknown": [
       {
@@ -1455,7 +1455,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#mouseBeginClickAndDropHandler",
     "access": null,
     "description": null,
-    "lineNumber": 137,
+    "lineNumber": 138,
     "undocument": true,
     "unknown": [
       {
@@ -1486,7 +1486,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#_trackMouse",
     "access": null,
     "description": null,
-    "lineNumber": 139,
+    "lineNumber": 140,
     "undocument": true,
     "unknown": [
       {
@@ -1511,7 +1511,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#mouseEndClickAndDropHandler",
     "access": null,
     "description": null,
-    "lineNumber": 144,
+    "lineNumber": 145,
     "undocument": true,
     "unknown": [
       {
@@ -1537,7 +1537,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#_trackMouse",
     "access": null,
     "description": null,
-    "lineNumber": 145,
+    "lineNumber": 146,
     "undocument": true,
     "unknown": [
       {
@@ -1562,7 +1562,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#update",
     "access": null,
     "description": null,
-    "lineNumber": 148,
+    "lineNumber": 149,
     "undocument": true,
     "unknown": [
       {
@@ -1593,7 +1593,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#_pos",
     "access": null,
     "description": null,
-    "lineNumber": 153,
+    "lineNumber": 154,
     "undocument": true,
     "unknown": [
       {
@@ -1618,7 +1618,7 @@
     "longname": "VisualScripting/UI/Blocks/UIBlock.js~UIBlock#draw",
     "access": null,
     "description": null,
-    "lineNumber": 158,
+    "lineNumber": 159,
     "undocument": true,
     "unknown": [
       {
@@ -3834,7 +3834,7 @@
     "__docId__": 152,
     "kind": "file",
     "name": "VisualScripting/UI/Blueprint.js",
-    "content": "/**\n * Created by Cesumilo on 12/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nimport { BlueprintBlock } from './Blocks/Essentials/BlueprintBlock';\n\nvar UIEvents = require('./UIEvents');\n\nexport class Blueprint {\n    constructor(name, inputs=[], outputs=[\"output\"]) {\n        this._blocks = [];\n        this._name = name;\n        this._outputs = outputs;\n        this._inputs = inputs;\n\n        if (this._inputs.length > 0) {\n            this.addBlock(new BlueprintBlock(\"Blueprint Inputs\",\n                \"input\", \"inputs\",\n                \"Blueprint Inputs Edit\",\n                \"outputs\", {\n                outputs: this._inputs,\n                flowBooleans: [ false, true ]\n            }), false, true);\n        }\n\n        this.addBlock(new BlueprintBlock(\"Blueprint Outputs\",\n            \"output\", \"outputs\",\n            \"Blueprint Outputs Edit\",\n            \"inputs\", {\n            inputs: this._outputs,\n            flowBooleans: [ true, false ]\n        }), true, false);\n    }\n\n    getName() {\n        return this._name;\n    }\n\n    getOptions() {\n        return {\n            inputs: this._inputs,\n            outputs: this._outputs\n        };\n    }\n\n    addBlock(block, input=true, output=true) {\n        if (typeof block.draw !== \"function\") {\n            return -1;\n        }\n        block.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());\n        block.generateMagnets();\n        block.generateFlowMagnets(input, output);\n        this._blocks.push(block);\n        return this._blocks.length - 1;\n    }\n\n    loadFromFile(filename) {\n        // TODO\n    }\n\n    saveToFile(filename) {\n        // TODO\n    }\n\n    draw() {\n        for (let i = 0; i < this._blocks.length; i++) {\n            this._blocks[i].draw();\n        }\n    }\n}",
+    "content": "/**\n * Created by Cesumilo on 12/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nimport { BlueprintBlock } from './Blocks/Essentials/BlueprintBlock';\nimport { UIDrawable } from './UIDrawable';\n\nlet UIEvents = require('./UIEvents');\n\nexport class Blueprint extends UIDrawable {\n    constructor(name, inputs=[], outputs=[\"output\"]) {\n        super(\"blueprint\");\n        this._blocks = [];\n        this._name = name;\n        this._outputs = outputs;\n        this._inputs = inputs;\n\n        if (this._inputs.length > 0) {\n            this.addBlock(new BlueprintBlock(\"Blueprint Inputs\",\n                \"input\", \"inputs\",\n                \"Blueprint Inputs Edit\",\n                \"outputs\", {\n                outputs: this._inputs,\n                flowBooleans: [ false, true ]\n            }), false, true);\n        }\n\n        this.addBlock(new BlueprintBlock(\"Blueprint Outputs\",\n            \"output\", \"outputs\",\n            \"Blueprint Outputs Edit\",\n            \"inputs\", {\n            inputs: this._outputs,\n            flowBooleans: [ true, false ]\n        }), true, false);\n    }\n\n    getName() {\n        return this._name;\n    }\n\n    getOptions() {\n        return {\n            inputs: this._inputs,\n            outputs: this._outputs\n        };\n    }\n\n    addBlock(block, input=true, output=true) {\n        if (!(block instanceof UIDrawable)) {\n            return -1;\n        }\n        block.setCanvas(UIEvents.getVisualScriptingUI().getCanvas());\n        block.generateMagnets();\n        block.generateFlowMagnets(input, output);\n        this._blocks.push(block);\n        return this._blocks.length - 1;\n    }\n\n    loadFromFile(filename) {\n        // TODO\n    }\n\n    saveToFile(filename) {\n        // TODO\n    }\n\n    draw() {\n        for (let i = 0; i < this._blocks.length; i++) {\n            this._blocks[i].draw();\n        }\n    }\n}",
     "static": true,
     "longname": "VisualScripting/UI/Blueprint.js",
     "access": null,
@@ -3853,7 +3853,7 @@
     "importPath": "app/VisualScripting/UI/Blueprint.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 9,
+    "lineNumber": 10,
     "undocument": true,
     "unknown": [
       {
@@ -3879,7 +3879,7 @@
     "importPath": "app/VisualScripting/UI/Blueprint.js",
     "importStyle": "{Blueprint}",
     "description": null,
-    "lineNumber": 11,
+    "lineNumber": 12,
     "undocument": true,
     "unknown": [
       {
@@ -3887,7 +3887,10 @@
         "tagValue": ""
       }
     ],
-    "interface": false
+    "interface": false,
+    "extends": [
+      "VisualScripting/UI/UIDrawable.js~UIDrawable"
+    ]
   },
   {
     "__docId__": 155,
@@ -3900,7 +3903,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#constructor",
     "access": null,
     "description": null,
-    "lineNumber": 12,
+    "lineNumber": 13,
     "undocument": true,
     "unknown": [
       {
@@ -3946,7 +3949,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#_blocks",
     "access": null,
     "description": null,
-    "lineNumber": 13,
+    "lineNumber": 15,
     "undocument": true,
     "unknown": [
       {
@@ -3969,7 +3972,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#_name",
     "access": null,
     "description": null,
-    "lineNumber": 14,
+    "lineNumber": 16,
     "undocument": true,
     "unknown": [
       {
@@ -3992,7 +3995,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#_outputs",
     "access": null,
     "description": null,
-    "lineNumber": 15,
+    "lineNumber": 17,
     "undocument": true,
     "unknown": [
       {
@@ -4015,7 +4018,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#_inputs",
     "access": null,
     "description": null,
-    "lineNumber": 16,
+    "lineNumber": 18,
     "undocument": true,
     "unknown": [
       {
@@ -4040,7 +4043,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#getName",
     "access": null,
     "description": null,
-    "lineNumber": 37,
+    "lineNumber": 39,
     "undocument": true,
     "unknown": [
       {
@@ -4066,7 +4069,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#getOptions",
     "access": null,
     "description": null,
-    "lineNumber": 41,
+    "lineNumber": 43,
     "undocument": true,
     "unknown": [
       {
@@ -4092,7 +4095,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#addBlock",
     "access": null,
     "description": null,
-    "lineNumber": 48,
+    "lineNumber": 50,
     "undocument": true,
     "unknown": [
       {
@@ -4143,7 +4146,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#loadFromFile",
     "access": null,
     "description": null,
-    "lineNumber": 59,
+    "lineNumber": 61,
     "undocument": true,
     "unknown": [
       {
@@ -4171,7 +4174,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#saveToFile",
     "access": null,
     "description": null,
-    "lineNumber": 63,
+    "lineNumber": 65,
     "undocument": true,
     "unknown": [
       {
@@ -4199,7 +4202,7 @@
     "longname": "VisualScripting/UI/Blueprint.js~Blueprint#draw",
     "access": null,
     "description": null,
-    "lineNumber": 67,
+    "lineNumber": 69,
     "undocument": true,
     "unknown": [
       {
@@ -5371,7 +5374,7 @@
     "__docId__": 215,
     "kind": "file",
     "name": "VisualScripting/UI/UIGraphics.js",
-    "content": "/**\n * Created by Cesumilo on 06/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nimport $ from 'jquery';\n\nmodule.exports = {\n\n    getTextHeight: function(str, font) {\n\n        var text = $('<span>' + str + '</span>').css({ fontFamily: font });\n        var block = $('<div style=\"display: inline-block; width: 1px; height: 0px;\"></div>');\n\n        var div = $('<div></div>');\n        div.append(text, block);\n\n        var body = $('body');\n        body.append(div);\n\n        try {\n\n            var result = {};\n\n            block.css({ verticalAlign: 'baseline' });\n            result.ascent = block.offset().top - text.offset().top;\n\n            block.css({ verticalAlign: 'bottom' });\n            result.height = block.offset().top - text.offset().top;\n\n            result.descent = result.height - result.ascent;\n\n        } finally {\n            div.remove();\n        }\n\n        return result;\n    },\n\n    getCanvasCoordinates: function(canvas, x, y) {\n        var rect = canvas.getBoundingClientRect();\n        return { x: x - rect.left, y: y - rect.top };\n    },\n\n    euclidianDist: function(x1, y1, x2, y2) {\n        return (Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));\n    },\n\n    drawCircle: function(ctx, centerX, centerY, radius) {\n        ctx.beginPath();\n        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);\n        ctx.fill();\n        ctx.lineWidth = 2;\n        ctx.closePath();\n        ctx.stroke();\n    },\n\n    drawLine: function(ctx, x1, y1, x2, y2) {\n        ctx.beginPath();\n        ctx.moveTo(x1, y1);\n        ctx.lineTo(x2, y2);\n        ctx.lineWidth = 1;\n        ctx.closePath();\n        ctx.stroke();\n    },\n\n    drawBezierCurve: function(ctx, x1, y1, x2, y2, x3, y3, x4, y4) {\n        ctx.lineWidth = 2;\n        ctx.beginPath();\n        ctx.moveTo(x1, y1);\n        ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);\n        ctx.stroke();\n    },\n\n    drawUpperRoundedRect: function(ctx, x, y, width, height, radius, fill, stroke) {\n        if (typeof stroke === \"undefined\" ) {\n            stroke = true;\n        }\n        if (typeof radius === \"undefined\") {\n            radius = 5;\n        }\n        ctx.beginPath();\n        ctx.moveTo(x + radius, y);\n        ctx.lineTo(x + width - radius, y);\n        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);\n        ctx.lineTo(x + width, y + height);\n        ctx.lineTo(x, y + height);\n        ctx.lineTo(x, y + radius);\n        ctx.quadraticCurveTo(x, y, x + radius, y);\n        ctx.closePath();\n\n        if (stroke) {\n            ctx.stroke();\n        }\n        if (fill) {\n            ctx.fill();\n        }\n    },\n\n    drawRoundedRect: function(ctx, x, y, width, height, radius, fill, stroke) {\n        if (typeof stroke === \"undefined\" ) {\n            stroke = true;\n        }\n        if (typeof radius === \"undefined\") {\n            radius = 5;\n        }\n        ctx.beginPath();\n        ctx.moveTo(x + radius, y);\n        ctx.lineTo(x + width - radius, y);\n        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);\n        ctx.lineTo(x + width, y + height - radius);\n        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);\n        ctx.lineTo(x + radius, y + height);\n        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);\n        ctx.lineTo(x, y + radius);\n        ctx.quadraticCurveTo(x, y, x + radius, y);\n        ctx.closePath();\n\n        if (stroke) {\n            ctx.stroke();\n        }\n        if (fill) {\n            ctx.fill();\n        }\n    }\n};",
+    "content": "/**\n * Created by Cesumilo on 06/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nimport $ from 'jquery';\n\nmodule.exports = {\n\n    /**\n     * Compute the string height in terms of the font and the string.\n     * @param {string} str Contains the string which will be used to compute his height.\n     * @param {object} font Contains the font which will be used to print the string in str.\n     * @returns {{ascent: number, height: number, descent: number}}\n     */\n    getTextHeight: function(str, font) {\n\n        var text = $('<span>' + str + '</span>').css({ fontFamily: font });\n        var block = $('<div style=\"display: inline-block; width: 1px; height: 0px;\"></div>');\n\n        var div = $('<div></div>');\n        div.append(text, block);\n\n        var body = $('body');\n        body.append(div);\n\n        try {\n\n            var result = {};\n\n            block.css({ verticalAlign: 'baseline' });\n            result.ascent = block.offset().top - text.offset().top;\n\n            block.css({ verticalAlign: 'bottom' });\n            result.height = block.offset().top - text.offset().top;\n\n            result.descent = result.height - result.ascent;\n\n        } finally {\n            div.remove();\n        }\n\n        return result;\n    },\n\n    /**\n     * Compute the coordinate inside the canvas with the current coordinate of the object in terms of his canvas\n     * (as the computer screen for the mouse).\n     * @param {object} canvas Contains the current canvas to compute the new coordinates.\n     * @param {number} x Contains the current coordinate x of the object inside his canvas.\n     * @param {number} y Contains the current coordinate y of the object inside his canvas.\n     * @returns {{x: number, y: number}}\n     */\n    getCanvasCoordinates: function(canvas, x, y) {\n        var rect = canvas.getBoundingClientRect();\n        return { x: x - rect.left, y: y - rect.top };\n    },\n\n    /**\n     * Compute the euclidian distance between two pair of coordinates.\n     * @param {number} x1 Contains the x coordinate of the first object.\n     * @param {number} y1 Contains the y coordinate of the first object.\n     * @param {number} x2 Contains the x coordinate of the second object.\n     * @param {number} y2 Contains the y coordinate of the second object.\n     * @returns {number}\n     */\n    euclidianDist: function(x1, y1, x2, y2) {\n        return (Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));\n    },\n\n    /**\n     * Draw a circle in the given context.\n     * @param {object} ctx Contains the current context which will be used to draw a circle.\n     * @param {number} centerX Contains the x coordinate of the center of the circle.\n     * @param {number} centerY Contains the y coordinate of the center of the circle.\n     * @param {number} radius Contains the radius of the circle.\n     */\n    drawCircle: function(ctx, centerX, centerY, radius) {\n        ctx.beginPath();\n        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);\n        ctx.fill();\n        ctx.lineWidth = 2;\n        ctx.closePath();\n        ctx.stroke();\n    },\n\n    /**\n     * Draw a line in the given context.\n     * @param {object} ctx Contains the current context which will be used to draw a line.\n     * @param {number} x1 Contains the x coordinate of the first point.\n     * @param {number} y1 Contains the y coordinate of the first point.\n     * @param {number} x2 Contains the x coordinate of the second point.\n     * @param {number} y2 Contains the y coordinate of the second point.\n     */\n    drawLine: function(ctx, x1, y1, x2, y2) {\n        ctx.beginPath();\n        ctx.moveTo(x1, y1);\n        ctx.lineTo(x2, y2);\n        ctx.lineWidth = 1;\n        ctx.closePath();\n        ctx.stroke();\n    },\n\n    /**\n     * Draw a bezier curve in the given context.\n     * @param {object} ctx Contains the current context which will be used to draw a bezier curve.\n     * @param {number} x1 Contains the x coordinate of the first point.\n     * @param {number} y1 Contains the y coordinate of the first point.\n     * @param {number} x2 Contains the x coordinate of the second point.\n     * @param {number} y2 Contains the y coordinate of the second point.\n     * @param {number} x3 Contains the x coordinate of the third point.\n     * @param {number} y3 Contains the y coordinate of the third point.\n     * @param {number} x4 Contains the x coordinate of the fourth point.\n     * @param {number} y4 Contains the y coordinate of the fourth point.\n     */\n    drawBezierCurve: function(ctx, x1, y1, x2, y2, x3, y3, x4, y4) {\n        ctx.lineWidth = 2;\n        ctx.beginPath();\n        ctx.moveTo(x1, y1);\n        ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);\n        ctx.stroke();\n    },\n\n    drawUpperRoundedRect: function(ctx, x, y, width, height, radius, fill, stroke) {\n        if (typeof stroke === \"undefined\" ) {\n            stroke = true;\n        }\n        if (typeof radius === \"undefined\") {\n            radius = 5;\n        }\n        ctx.beginPath();\n        ctx.moveTo(x + radius, y);\n        ctx.lineTo(x + width - radius, y);\n        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);\n        ctx.lineTo(x + width, y + height);\n        ctx.lineTo(x, y + height);\n        ctx.lineTo(x, y + radius);\n        ctx.quadraticCurveTo(x, y, x + radius, y);\n        ctx.closePath();\n\n        if (stroke) {\n            ctx.stroke();\n        }\n        if (fill) {\n            ctx.fill();\n        }\n    },\n\n    drawRoundedRect: function(ctx, x, y, width, height, radius, fill, stroke) {\n        if (typeof stroke === \"undefined\" ) {\n            stroke = true;\n        }\n        if (typeof radius === \"undefined\") {\n            radius = 5;\n        }\n        ctx.beginPath();\n        ctx.moveTo(x + radius, y);\n        ctx.lineTo(x + width - radius, y);\n        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);\n        ctx.lineTo(x + width, y + height - radius);\n        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);\n        ctx.lineTo(x + radius, y + height);\n        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);\n        ctx.lineTo(x, y + radius);\n        ctx.quadraticCurveTo(x, y, x + radius, y);\n        ctx.closePath();\n\n        if (stroke) {\n            ctx.stroke();\n        }\n        if (fill) {\n            ctx.fill();\n        }\n    }\n};",
     "static": true,
     "longname": "VisualScripting/UI/UIGraphics.js",
     "access": null,
@@ -5382,7 +5385,7 @@
     "__docId__": 216,
     "kind": "file",
     "name": "VisualScripting/UI/UIStyles.js",
-    "content": "/**\n * Created by Cesumilo on 07/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nmodule.exports = {\n\n    // UIBlockMagnet Style\n    UIBlockMagnetInputFillColor: \"#FFC107\",\n    UIBlockMagnetOutputFillColor: \"#FF9800\",\n    UIBlockMagnetInputStrokeColor: \"#6282CA\",\n    UIBlockMagnetOutputStrokeColor: \"#FF6029\",\n    UIBlockMagnetDefaultWidth: 10,\n    UIBlockMagnetDefaultHeight: 10,\n    UIBlockMagnetDefaultRadius: 2,\n    UIBlockMagnetDefaultName: \"no_name\",\n\n    // UIBlock Styles\n    UIBlockFillColor: \"#F44336\",\n    UIBlockStrokeColor: \"#2E2C61\",\n    UIBlockDefaultWidth: 100,\n    UIBlockDefaultHeight: 100,\n    UIBlockDefaultRadius: 8,\n    UIBlockDefaultHeaderHeight: 30,\n    UIBlockDefaultUIBlockLinkOffset: 10,\n    UIBlockDefaultTextOffset: 10,\n    UIBlockDefaultFont: \"18px Arial\",\n    UIBlockDefaultCorpusOffset: 30,\n    UIBlockTextColor: \"black\",\n    UIBlockShadowBlur: 2,\n    UIBlockShadowColor: \"rgba(0,0,0,0.5)\",\n    UIBlockHeaderColor: \"#D32F2F\",\n    UIBlockDefaultTextColor: \"#000000\",\n\n    // UIBlockLink Styles\n    UIBlockLinkCircleFillColor: \"rgba(255, 95, 76, \" + 0.5 + \")\",\n    UIBlockLinkCircleStrokeColor: \"#8C0E00\",\n    UIBlockLinkLineStrokeColor: \"#8C0E00\",\n    UIBlockLinkBezierCurveStrokeColor: \"#333\",\n    UIBlockLinkDefaultCurveOffset: 50,\n    UIBlockLinkDefaultCircleRadius: 10,\n    UIBlockLineDefaultColor: \"#424242\",\n\n    // UIBlockFlow\n    UIBlockFlowFillColor: \"#EBDE19\",\n    UIBlockFlowStrokeColor: \"#9E9E9E\",\n\n    // BlueprintBlock\n    BlueprintBlockColor: \"#9C27B0\",\n    BlueprintBlockHeaderColor: \"#7B1FA2\",\n    BlueprintBlockMagnetColor: \"#4A148C\",\n    BlueprintBlockFlowColor: \"#BA68C8\"\n};",
+    "content": "/**\n * Created by Cesumilo on 07/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nmodule.exports = {\n\n    /**\n     * Define the style of UIBlockMagnet by default.\n     */\n    UIBlockMagnetInputFillColor: \"#FFC107\",\n    UIBlockMagnetOutputFillColor: \"#FF9800\",\n    UIBlockMagnetInputStrokeColor: \"#6282CA\",\n    UIBlockMagnetOutputStrokeColor: \"#FF6029\",\n    UIBlockMagnetDefaultWidth: 10,\n    UIBlockMagnetDefaultHeight: 10,\n    UIBlockMagnetDefaultRadius: 2,\n    UIBlockMagnetDefaultName: \"no_name\",\n\n    /**\n     * Define the UIBlock style by default.\n     */\n    UIBlockFillColor: \"#F44336\",\n    UIBlockStrokeColor: \"#2E2C61\",\n    UIBlockDefaultWidth: 100,\n    UIBlockDefaultHeight: 100,\n    UIBlockDefaultRadius: 8,\n    UIBlockDefaultHeaderHeight: 30,\n    UIBlockDefaultUIBlockLinkOffset: 10,\n    UIBlockDefaultTextOffset: 10,\n    UIBlockDefaultFont: \"18px Arial\",\n    UIBlockDefaultCorpusOffset: 30,\n    UIBlockTextColor: \"black\",\n    UIBlockShadowBlur: 2,\n    UIBlockShadowColor: \"rgba(0,0,0,0.5)\",\n    UIBlockHeaderColor: \"#D32F2F\",\n    UIBlockDefaultTextColor: \"#000000\",\n\n    /**\n     * Define the UIBlockLink style by default.\n     */\n    UIBlockLinkCircleFillColor: \"rgba(255, 95, 76, \" + 0.5 + \")\",\n    UIBlockLinkCircleStrokeColor: \"#8C0E00\",\n    UIBlockLinkLineStrokeColor: \"#8C0E00\",\n    UIBlockLinkBezierCurveStrokeColor: \"#333\",\n    UIBlockLinkDefaultCurveOffset: 50,\n    UIBlockLinkDefaultCircleRadius: 10,\n    UIBlockLineDefaultColor: \"#424242\",\n\n    /**\n     * Define the UIBlockFlow style by default.\n     */\n    UIBlockFlowFillColor: \"#EBDE19\",\n    UIBlockFlowStrokeColor: \"#9E9E9E\",\n\n    /**\n     * Define the BlueprintBlock style by default.\n     */\n    BlueprintBlockColor: \"#9C27B0\",\n    BlueprintBlockHeaderColor: \"#7B1FA2\",\n    BlueprintBlockMagnetColor: \"#4A148C\",\n    BlueprintBlockFlowColor: \"#BA68C8\"\n};",
     "static": true,
     "longname": "VisualScripting/UI/UIStyles.js",
     "access": null,
@@ -5393,7 +5396,7 @@
     "__docId__": 217,
     "kind": "file",
     "name": "VisualScripting/UI/UIVisualScripting.js",
-    "content": "/**\n * Created by Cesumilo on 06/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nimport React, { Component } from 'react';\nimport classNames from 'classnames';\nimport { ContextMenu } from \"@blueprintjs/core\";\nimport { UIContextMenu } from './UIContextMenu';\nimport { UIBlock } from './Blocks/UIBlock';\nimport { Blueprint } from './Blueprint';\nimport { UIBlueprint } from './UIBlueprint';\nimport { UIBackground } from './UIBackground';\nimport '../../../../public/css/VScriptingGUI.css';\n\nlet UIGraphics = require('./UIGraphics');\nlet UIEvents = require('./UIEvents');\n\n/**\n * Describe the UI class for Visual Scripting.\n */\nexport class UIVisualScripting extends Component {\n\n    constructor(props) {\n        super(props);\n\n        this._background =  new UIBackground();\n        this._handlers = {};\n        this._guiObjects = [];\n\n        this.state = {\n            canvas: null,\n            ctx: null,\n            oldMousePosition: { x: 0, y: 0 },\n            willClickDrop: false,\n            isClickDrop: false,\n            isContextMenuOpen: false\n        };\n\n        this.initHandlers();\n        UIEvents.setVisualScriptingUI(this);\n    }\n\n    initHandlers() {\n        this._handlers[UIEvents.events.MOUSE_CLICK] = [];\n        this._handlers[UIEvents.events.MOUSE_MOVE] = [];\n        this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP] = [];\n        this._handlers[UIEvents.events.END_CLICK_AND_DROP] = [];\n        this._handlers[UIEvents.events.FOLLOW_MOUSE] = [];\n        this._handlers[UIEvents.events.CONTEXT_MENU_MODE] = [];\n    }\n\n    getCanvas() {\n        return this.state.canvas;\n    }\n\n    componentDidMount() {\n        this.setState({\n            canvas: document.getElementById('vscripting-gui')\n        }, function() {\n            this._background.setCanvas(this.state.canvas);\n\n            // TODO: Revoir comment adapter la taille du canvas à l'écran\n            this.state.canvas.setAttribute(\"width\", document.body.clientWidth);\n            this.state.canvas.setAttribute(\"height\", document.body.clientHeight * 0.938);\n\n            this.state.canvas.addEventListener(\"mousedown\", (e) => this.mouseDownHandler(e));\n            this.state.canvas.addEventListener(\"mousemove\", (e) => this.mouseMoveHandler(e));\n            this.state.canvas.addEventListener(\"mouseup\", (e) => this.mouseUpHandler(e));\n\n            /* TESTING ZONE */\n            var blueprint = new Blueprint(\"blueprint\", [\"position\", \"scale\"], [\"position\"]);\n            blueprint.addBlock(new UIBlock(\"test\", \"#B71C1C\", \"#000000\", {\n                inputs: [\"a\"],\n                outputs: [\"b\"]\n            }, \"#000000\"));\n            var ui = new UIBlueprint(blueprint);\n            ui.setCanvas(this.state.canvas);\n            this.addDrawableObject(blueprint);\n            /* END OF TESTING ZONE */\n\n            this.setState({\n                ctx: this.state.canvas.getContext('2d')\n            });\n        });\n    }\n\n    componentDidUpdate() {\n        if (this.state.ctx) {\n            this.state.canvas.width = this.state.canvas.width;\n            this._background.draw();\n            for (let i = 0; i < this._guiObjects.length; i++) {\n                this._guiObjects[i].draw();\n            }\n        }\n    }\n\n    addDrawableObject(object) {\n        if (typeof object.draw === \"function\") {\n            this._guiObjects.push(object);\n        }\n    }\n\n    mouseDownHandler(e) {\n        let i = 0;\n\n        if (e.button === UIEvents.getButton(\"mouseRightButton\")) {\n            while (i < this._handlers[UIEvents.events.CONTEXT_MENU_MODE].length && !this._handlers[UIEvents.events.CONTEXT_MENU_MODE][i](e)) {\n                i++;\n            }\n            if (i >= this._handlers[UIEvents.events.CONTEXT_MENU_MODE].length) {\n                UIEvents.removeState(UIEvents.states.CUSTOM_CONTEXT_MENU);\n            }\n        }\n\n        if (e.button !== UIEvents.getButton(\"mouseRightButton\")) {\n            this.setState({\n                willClickDrop: true\n            });\n        }\n    }\n\n    mouseUpHandler(e) {\n        let i = 0;\n\n        if (!this.state.isClickDrop) {\n            while (i < this._handlers[UIEvents.events.MOUSE_CLICK].length && !this._handlers[UIEvents.events.MOUSE_CLICK][i](e)) {\n                i++;\n            }\n        } else {\n            while (i < this._handlers[UIEvents.events.END_CLICK_AND_DROP].length\n                    && !this._handlers[UIEvents.events.END_CLICK_AND_DROP][i](e)) {\n                i++;\n            }\n        }\n\n        this.setState({\n            willClickDrop: false,\n            isClickDrop: false\n        });\n    }\n\n    mouseMoveHandler(e) {\n        const pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);\n        const newMousePos = {\n            x: pos.x - this.state.oldMousePosition.x,\n            y: pos.y - this.state.oldMousePosition.y\n        };\n        let i = 0;\n\n        if (this.state.willClickDrop && !this.state.isClickDrop) {\n            this.setState({\n                isClickDrop: true\n            }, function() {\n                let j = 0;\n                while (j < this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP].length\n                        && !this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP][j](e)) {\n                    j++;\n                }\n            });\n        }\n\n        if (this.state.isClickDrop) {\n            i = 0;\n            while (i < this._handlers[UIEvents.events.MOUSE_MOVE].length\n                    && !this._handlers[UIEvents.events.MOUSE_MOVE][i](newMousePos)) {\n                i++;\n            }\n        }\n\n        i = 0;\n        while (i < this._handlers[UIEvents.events.FOLLOW_MOUSE].length\n                && !this._handlers[UIEvents.events.FOLLOW_MOUSE][i](newMousePos)) {\n            i++;\n        }\n\n        this.setState({ oldMousePosition: pos });\n    }\n\n    addEventListener(name, callback) {\n        if (!this._handlers.hasOwnProperty(name))\n            return -1;\n        this._handlers[name].push(callback);\n        return this._handlers[name].length;\n    }\n\n    removeEventListener(name, id) {\n        if (!this._handlers.hasOwnProperty(name) || id >= this._handlers[name].length)\n            return false;\n        this._handlers[name].splice(id, 1);\n        return true;\n    }\n\n    showContextMenu(e) {\n        e.preventDefault();\n        ContextMenu.show(<UIContextMenu/>, { left: e.clientX, top: e.clientY }, () => this.onContextMenuClose());\n        this.setState({ isContextMenuOpen: true });\n    }\n\n    onContextMenuClose() {\n        this.setState({ isContextMenuOpen: false });\n    }\n\n    render() {\n        const classes = classNames(\"context-menu-node\", { \"context-menu-open\": this.state.isContextMenuOpen });\n        const contents = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).map(function(content, i){\n            return React.cloneElement(content, { key: 'content_' + i });\n        });\n\n        return (\n            <div className={classes} onContextMenu={(e) => this.showContextMenu(e)}>\n                {contents}\n                <img id=\"vscripting-gui-background\" src=\"img/grid.jpg\" style={{display: \"none\"}} alt=\"background\" />\n                <canvas id=\"vscripting-gui\"></canvas>\n            </div>\n        );\n    }\n}",
+    "content": "/**\n * Created by Cesumilo on 06/02/2017.\n * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.\n * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.\n */\n\nimport React, { Component } from 'react';\nimport classNames from 'classnames';\nimport { ContextMenu } from \"@blueprintjs/core\";\nimport { UIContextMenu } from './UIContextMenu';\nimport { UIBlock } from './Blocks/UIBlock';\nimport { Blueprint } from './Blueprint';\nimport { UIBlueprint } from './UIBlueprint';\nimport { UIBackground } from './UIBackground';\nimport { UIDrawable } from './UIDrawable';\nimport '../../../../public/css/VScriptingGUI.css';\n\nlet UIGraphics = require('./UIGraphics');\nlet UIEvents = require('./UIEvents');\n\n/**\n * Describe the UI class for Visual Scripting.\n * @extends {Component}\n */\nexport class UIVisualScripting extends Component {\n\n    /**\n     * Construct the UI interface of the Visual Scripting canvas, and set the component's states.\n     * @param {object} props Contains the properties of the JSX element.\n     */\n    constructor(props) {\n        super(props);\n\n        /**\n         * Contains the background of the canvas.\n         * @type {UIBackground}\n         * @private\n         */\n        this._background =  new UIBackground();\n\n        /**\n         * Contains all the handlers which have been registered.\n         * @type {object}\n         * @private\n         */\n        this._handlers = {};\n\n        /**\n         * Contains all the drawable objects.\n         * @type {Array}\n         * @private\n         */\n        this._guiObjects = [];\n\n        /**\n         * Contains all the states of the React Component.\n         * @type {object}\n         */\n        this.state = {\n            canvas: null,\n            ctx: null,\n            oldMousePosition: { x: 0, y: 0 },\n            willClickDrop: false,\n            isClickDrop: false,\n            isContextMenuOpen: false\n        };\n\n        this.initHandlers();\n        UIEvents.setVisualScriptingUI(this);\n    }\n\n    /**\n     * Initialize all the handlers that support the UI.\n     */\n    initHandlers() {\n        this._handlers[UIEvents.events.MOUSE_CLICK] = [];\n        this._handlers[UIEvents.events.MOUSE_MOVE] = [];\n        this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP] = [];\n        this._handlers[UIEvents.events.END_CLICK_AND_DROP] = [];\n        this._handlers[UIEvents.events.FOLLOW_MOUSE] = [];\n        this._handlers[UIEvents.events.CONTEXT_MENU_MODE] = [];\n    }\n\n    /**\n     * Returns the actual canvas of the UI.\n     * @returns {object}\n     */\n    getCanvas() {\n        return this.state.canvas;\n    }\n\n    /**\n     * Initialize all the UI dependencies and register the UI to the canvas events.\n     */\n    componentDidMount() {\n        this.setState({\n            canvas: document.getElementById('vscripting-gui')\n        }, function() {\n            this._background.setCanvas(this.state.canvas);\n\n            // TODO: Revoir comment adapter la taille du canvas à l'écran\n            this.state.canvas.setAttribute(\"width\", document.body.clientWidth);\n            this.state.canvas.setAttribute(\"height\", document.body.clientHeight * 0.938);\n\n            this.state.canvas.addEventListener(\"mousedown\", (e) => this.mouseDownHandler(e));\n            this.state.canvas.addEventListener(\"mousemove\", (e) => this.mouseMoveHandler(e));\n            this.state.canvas.addEventListener(\"mouseup\", (e) => this.mouseUpHandler(e));\n\n            /* TESTING ZONE */\n            var blueprint = new Blueprint(\"blueprint\", [\"position\", \"scale\"], [\"position\"]);\n            blueprint.addBlock(new UIBlock(\"test\", \"#B71C1C\", \"#000000\", {\n                inputs: [\"a\"],\n                outputs: [\"b\"]\n            }, \"#000000\"));\n            var ui = new UIBlueprint(blueprint);\n            ui.setCanvas(this.state.canvas);\n            this.addDrawableObject(blueprint);\n            /* END OF TESTING ZONE */\n\n            this.setState({\n                ctx: this.state.canvas.getContext('2d')\n            });\n        });\n    }\n\n    /**\n     * Draw all the objects that are in the canvas.\n     */\n    componentDidUpdate() {\n        if (this.state.ctx) {\n            this.state.canvas.width = this.state.canvas.width;\n            this._background.draw();\n            for (let i = 0; i < this._guiObjects.length; i++) {\n                this._guiObjects[i].draw();\n            }\n        }\n    }\n\n    /**\n     * Allow to add new object in the canvas. The object has to inherit from UIDrawable class.\n     * @param {object} object Contains the new object which will be draw on the canvas.\n     */\n    addDrawableObject(object) {\n        if (object instanceof UIDrawable) {\n            this._guiObjects.push(object);\n        }\n    }\n\n    /**\n     * Handle the mouse button down event.\n     * @param {object} e Contains the event send by the canvas.\n     */\n    mouseDownHandler(e) {\n        let i = 0;\n\n        if (e.button === UIEvents.getButton(\"mouseRightButton\")) {\n            while (i < this._handlers[UIEvents.events.CONTEXT_MENU_MODE].length && !this._handlers[UIEvents.events.CONTEXT_MENU_MODE][i](e)) {\n                i++;\n            }\n            if (i >= this._handlers[UIEvents.events.CONTEXT_MENU_MODE].length) {\n                UIEvents.removeState(UIEvents.states.CUSTOM_CONTEXT_MENU);\n            }\n        }\n\n        if (e.button !== UIEvents.getButton(\"mouseRightButton\")) {\n            this.setState({\n                willClickDrop: true\n            });\n        }\n    }\n\n    /**\n     * Handle the mouse button up event.\n     * @param {object} e Contains the event send by the canvas\n     */\n    mouseUpHandler(e) {\n        let i = 0;\n\n        if (!this.state.isClickDrop) {\n            while (i < this._handlers[UIEvents.events.MOUSE_CLICK].length && !this._handlers[UIEvents.events.MOUSE_CLICK][i](e)) {\n                i++;\n            }\n        } else {\n            while (i < this._handlers[UIEvents.events.END_CLICK_AND_DROP].length\n                    && !this._handlers[UIEvents.events.END_CLICK_AND_DROP][i](e)) {\n                i++;\n            }\n        }\n\n        this.setState({\n            willClickDrop: false,\n            isClickDrop: false\n        });\n    }\n\n    /**\n     * Handle the mouse movement.\n     * @param {object} e Contains the event send by the canvas.\n     */\n    mouseMoveHandler(e) {\n        const pos = UIGraphics.getCanvasCoordinates(this.state.canvas, e.clientX, e.clientY);\n        const newMousePos = {\n            x: pos.x - this.state.oldMousePosition.x,\n            y: pos.y - this.state.oldMousePosition.y\n        };\n        let i = 0;\n\n        if (this.state.willClickDrop && !this.state.isClickDrop) {\n            this.setState({\n                isClickDrop: true\n            }, function() {\n                let j = 0;\n                while (j < this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP].length\n                        && !this._handlers[UIEvents.events.BEGIN_CLICK_AND_DROP][j](e)) {\n                    j++;\n                }\n            });\n        }\n\n        if (this.state.isClickDrop) {\n            i = 0;\n            while (i < this._handlers[UIEvents.events.MOUSE_MOVE].length\n                    && !this._handlers[UIEvents.events.MOUSE_MOVE][i](newMousePos)) {\n                i++;\n            }\n        }\n\n        i = 0;\n        while (i < this._handlers[UIEvents.events.FOLLOW_MOUSE].length\n                && !this._handlers[UIEvents.events.FOLLOW_MOUSE][i](newMousePos)) {\n            i++;\n        }\n\n        this.setState({ oldMousePosition: pos });\n    }\n\n    /**\n     * Allow to register a callback to an event supported by the UI.\n     * @param {string} name Contains the name of the event that the callback will be registered.\n     * @param {function} callback Contains the callback function which will be called when the event is fired.\n     * @returns {number} Returns the index of the callback in the registering list.\n     */\n    addEventListener(name, callback) {\n        if (!this._handlers.hasOwnProperty(name))\n            return -1;\n        this._handlers[name].push(callback);\n        return this._handlers[name].length;\n    }\n\n    /**\n     * Allow to remove a callback from an event.\n     * @param {string} name Contains the name of the event that the callback has been registered.\n     * @param {number} id Contains the index in the registering list of the callback.\n     * @returns {boolean} Returns true if the removing has been done.\n     */\n    removeEventListener(name, id) {\n        if (!this._handlers.hasOwnProperty(name) || id >= this._handlers[name].length)\n            return false;\n        this._handlers[name].splice(id, 1);\n        return true;\n    }\n\n    /**\n     * Show the context menu when the event is fired.\n     * @param {object} e Contains the event fired by the canvas.\n     */\n    showContextMenu(e) {\n        e.preventDefault();\n        ContextMenu.show(<UIContextMenu/>, { left: e.clientX, top: e.clientY }, () => this.onContextMenuClose());\n        this.setState({ isContextMenuOpen: true });\n    }\n\n    /**\n     * Close the current context menu.\n     */\n    onContextMenuClose() {\n        this.setState({ isContextMenuOpen: false });\n    }\n\n    /**\n     * Render the Visual Scripting UI in the DOM.\n     * @returns {XML}\n     */\n    render() {\n        const classes = classNames(\"context-menu-node\", { \"context-menu-open\": this.state.isContextMenuOpen });\n        const contents = UIEvents.getState(UIEvents.states.EXTRA_CONTENTS).map(function(content, i){\n            return React.cloneElement(content, { key: 'content_' + i });\n        });\n\n        return (\n            <div className={classes} onContextMenu={(e) => this.showContextMenu(e)}>\n                {contents}\n                <img id=\"vscripting-gui-background\" src=\"img/grid.jpg\" style={{display: \"none\"}} alt=\"background\" />\n                <canvas id=\"vscripting-gui\"></canvas>\n            </div>\n        );\n    }\n}",
     "static": true,
     "longname": "VisualScripting/UI/UIVisualScripting.js",
     "access": null,
@@ -5412,7 +5415,7 @@
     "importPath": "app/VisualScripting/UI/UIVisualScripting.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 17,
+    "lineNumber": 18,
     "undocument": true,
     "unknown": [
       {
@@ -5438,7 +5441,7 @@
     "importPath": "app/VisualScripting/UI/UIVisualScripting.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 18,
+    "lineNumber": 19,
     "undocument": true,
     "unknown": [
       {
@@ -5464,10 +5467,10 @@
     "importPath": "app/VisualScripting/UI/UIVisualScripting.js",
     "importStyle": "{UIVisualScripting}",
     "description": "Describe the UI class for Visual Scripting.",
-    "lineNumber": 23,
+    "lineNumber": 25,
     "interface": false,
     "extends": [
-      "react~Component"
+      "Component"
     ]
   },
   {
@@ -5480,21 +5483,18 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#constructor",
     "access": null,
-    "description": null,
-    "lineNumber": 25,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Construct the UI interface of the Visual Scripting canvas, and set the component's states.",
+    "lineNumber": 31,
     "params": [
       {
-        "name": "props",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "props",
+        "description": "Contains the properties of the JSX element."
       }
     ]
   },
@@ -5505,20 +5505,16 @@
     "memberof": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting",
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#_background",
-    "access": null,
-    "description": null,
-    "lineNumber": 28,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "access": "private",
+    "description": "Contains the background of the canvas.",
+    "lineNumber": 39,
     "type": {
+      "nullable": null,
       "types": [
-        "*"
-      ]
+        "UIBackground"
+      ],
+      "spread": false,
+      "description": null
     }
   },
   {
@@ -5528,20 +5524,16 @@
     "memberof": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting",
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#_handlers",
-    "access": null,
-    "description": null,
-    "lineNumber": 29,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "access": "private",
+    "description": "Contains all the handlers which have been registered.",
+    "lineNumber": 46,
     "type": {
+      "nullable": null,
       "types": [
-        "{}"
-      ]
+        "object"
+      ],
+      "spread": false,
+      "description": null
     }
   },
   {
@@ -5551,20 +5543,16 @@
     "memberof": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting",
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#_guiObjects",
-    "access": null,
-    "description": null,
-    "lineNumber": 30,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "access": "private",
+    "description": "Contains all the drawable objects.",
+    "lineNumber": 53,
     "type": {
+      "nullable": null,
       "types": [
-        "*[]"
-      ]
+        "Array"
+      ],
+      "spread": false,
+      "description": null
     }
   },
   {
@@ -5575,19 +5563,15 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#state",
     "access": null,
-    "description": null,
-    "lineNumber": 32,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Contains all the states of the React Component.",
+    "lineNumber": 59,
     "type": {
+      "nullable": null,
       "types": [
-        "{\"canvas\": *, \"ctx\": *, \"oldMousePosition\": *, \"willClickDrop\": *, \"isClickDrop\": *, \"isContextMenuOpen\": *}"
-      ]
+        "object"
+      ],
+      "spread": false,
+      "description": null
     }
   },
   {
@@ -5600,15 +5584,8 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#initHandlers",
     "access": null,
-    "description": null,
-    "lineNumber": 45,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Initialize all the handlers that support the UI.",
+    "lineNumber": 75,
     "params": []
   },
   {
@@ -5621,20 +5598,22 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#getCanvas",
     "access": null,
-    "description": null,
-    "lineNumber": 54,
-    "undocument": true,
+    "description": "Returns the actual canvas of the UI.",
+    "lineNumber": 88,
     "unknown": [
       {
-        "tagName": "@_undocument",
-        "tagValue": ""
+        "tagName": "@returns",
+        "tagValue": "{object}"
       }
     ],
     "params": [],
     "return": {
+      "nullable": null,
       "types": [
-        "*"
-      ]
+        "object"
+      ],
+      "spread": false,
+      "description": ""
     }
   },
   {
@@ -5647,15 +5626,8 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#componentDidMount",
     "access": null,
-    "description": null,
-    "lineNumber": 58,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Initialize all the UI dependencies and register the UI to the canvas events.",
+    "lineNumber": 95,
     "params": []
   },
   {
@@ -5668,15 +5640,8 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#componentDidUpdate",
     "access": null,
-    "description": null,
-    "lineNumber": 89,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Draw all the objects that are in the canvas.",
+    "lineNumber": 129,
     "params": []
   },
   {
@@ -5689,21 +5654,18 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#addDrawableObject",
     "access": null,
-    "description": null,
-    "lineNumber": 99,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Allow to add new object in the canvas. The object has to inherit from UIDrawable class.",
+    "lineNumber": 143,
     "params": [
       {
-        "name": "object",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "object",
+        "description": "Contains the new object which will be draw on the canvas."
       }
     ]
   },
@@ -5717,21 +5679,18 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#mouseDownHandler",
     "access": null,
-    "description": null,
-    "lineNumber": 105,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Handle the mouse button down event.",
+    "lineNumber": 153,
     "params": [
       {
-        "name": "e",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "e",
+        "description": "Contains the event send by the canvas."
       }
     ]
   },
@@ -5745,21 +5704,18 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#mouseUpHandler",
     "access": null,
-    "description": null,
-    "lineNumber": 124,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Handle the mouse button up event.",
+    "lineNumber": 176,
     "params": [
       {
-        "name": "e",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "e",
+        "description": "Contains the event send by the canvas"
       }
     ]
   },
@@ -5773,21 +5729,18 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#mouseMoveHandler",
     "access": null,
-    "description": null,
-    "lineNumber": 144,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Handle the mouse movement.",
+    "lineNumber": 200,
     "params": [
       {
-        "name": "e",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "e",
+        "description": "Contains the event send by the canvas."
       }
     ]
   },
@@ -5801,33 +5754,43 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#addEventListener",
     "access": null,
-    "description": null,
-    "lineNumber": 181,
-    "undocument": true,
+    "description": "Allow to register a callback to an event supported by the UI.",
+    "lineNumber": 243,
     "unknown": [
       {
-        "tagName": "@_undocument",
-        "tagValue": ""
+        "tagName": "@returns",
+        "tagValue": "{number} Returns the index of the callback in the registering list."
       }
     ],
     "params": [
       {
-        "name": "name",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "name",
+        "description": "Contains the name of the event that the callback will be registered."
       },
       {
-        "name": "callback",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "callback",
+        "description": "Contains the callback function which will be called when the event is fired."
       }
     ],
     "return": {
+      "nullable": null,
       "types": [
-        "*"
-      ]
+        "number"
+      ],
+      "spread": false,
+      "description": "Returns the index of the callback in the registering list."
     }
   },
   {
@@ -5840,33 +5803,43 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#removeEventListener",
     "access": null,
-    "description": null,
-    "lineNumber": 188,
-    "undocument": true,
+    "description": "Allow to remove a callback from an event.",
+    "lineNumber": 256,
     "unknown": [
       {
-        "tagName": "@_undocument",
-        "tagValue": ""
+        "tagName": "@returns",
+        "tagValue": "{boolean} Returns true if the removing has been done."
       }
     ],
     "params": [
       {
-        "name": "name",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "name",
+        "description": "Contains the name of the event that the callback has been registered."
       },
       {
-        "name": "id",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "id",
+        "description": "Contains the index in the registering list of the callback."
       }
     ],
     "return": {
+      "nullable": null,
       "types": [
         "boolean"
-      ]
+      ],
+      "spread": false,
+      "description": "Returns true if the removing has been done."
     }
   },
   {
@@ -5879,21 +5852,18 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#showContextMenu",
     "access": null,
-    "description": null,
-    "lineNumber": 195,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Show the context menu when the event is fired.",
+    "lineNumber": 267,
     "params": [
       {
-        "name": "e",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "e",
+        "description": "Contains the event fired by the canvas."
       }
     ]
   },
@@ -5907,15 +5877,8 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#onContextMenuClose",
     "access": null,
-    "description": null,
-    "lineNumber": 201,
-    "undocument": true,
-    "unknown": [
-      {
-        "tagName": "@_undocument",
-        "tagValue": ""
-      }
-    ],
+    "description": "Close the current context menu.",
+    "lineNumber": 276,
     "params": []
   },
   {
@@ -5928,20 +5891,22 @@
     "static": false,
     "longname": "VisualScripting/UI/UIVisualScripting.js~UIVisualScripting#render",
     "access": null,
-    "description": null,
-    "lineNumber": 205,
-    "undocument": true,
+    "description": "Render the Visual Scripting UI in the DOM.",
+    "lineNumber": 284,
     "unknown": [
       {
-        "tagName": "@_undocument",
-        "tagValue": ""
+        "tagName": "@returns",
+        "tagValue": "{XML}"
       }
     ],
     "params": [],
     "return": {
+      "nullable": null,
       "types": [
-        "*"
-      ]
+        "XML"
+      ],
+      "spread": false,
+      "description": ""
     }
   },
   {
